@@ -1,0 +1,431 @@
+.main {
+    margin: 0;
+    padding: 0;
+}
+
+.main .nav_bar {
+    background: linear-gradient(#666, #333);
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+}
+
+.main .nav_bar .menu {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 15px;
+}
+
+.main .nav_bar .menu button:hover {
+    text-decoration: underline;
+}
+
+.main .nav_bar .menu .active {
+    text-decoration: underline;
+}
+
+.main .nav_bar .menu b {
+    color: #ff9343;
+}
+
+.main .nav_bar .menu button {
+    color: white;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0px 15px;
+}
+
+.main .nav_bar .user {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 50px;
+}
+
+.main .nav_bar .user i {
+    margin: auto;
+    font-size: 30px;
+    padding-right: 20px;
+}
+
+.main .nav_bar .user .name_user {
+    margin: auto;
+}
+
+.main .nav_bar .user .name_user p {
+    margin: 0;
+    padding: 0;
+}
+
+.main .nav_bar .user .name_user a {
+    color: white;
+}
+
+.main .table .navbar_table {
+    display: flex;
+    justify-content: flex-start;
+    padding: 7px 0px;
+}
+
+.main .table .navbar_table button {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.main .table .navbar_table .menu_table i {
+    padding: 0px 3px;
+}
+
+.main .table .main_table table {
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.main button {
+    border: none;
+    background-color: transparent;
+}
+
+.main .table .main_table table th,
+td {
+    border: 1px solid #d7d7d7;
+    padding: 5px;
+}
+
+.main .table .main_table table thead {
+    text-align: center;
+    background: linear-gradient(rgb(238, 238, 238), rgb(199, 199, 199));
+}
+
+
+/* css bg color */
+
+.main .bg_color {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 20%;
+    background-color: rgb(0, 0, 0);
+}
+
+
+/* css popup */
+
+.main .popup {
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 55vh;
+    right: 50vh;
+    background-color: white;
+    border-radius: 15px;
+    top: 26vh;
+}
+
+.main .popup .navbar_popup {
+    background-color: rgb(76, 150, 219);
+    display: flex;
+    justify-content: space-between;
+    border-radius: 15px 15px 0px 0px;
+    padding: 0px 15px;
+    height: 40px;
+}
+
+.main .popup .navbar_popup h3 {
+    color: white;
+    margin: auto 0;
+}
+
+.main .popup .navbar_popup button {
+    background-color: transparent;
+    border: none;
+    font-size: 25px;
+    color: white;
+}
+
+.main .popup .main_popup {
+    padding: 15px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 0px 0px 15px 15px;
+}
+
+.main .popup .main_popup .form {
+    padding: 5px 0px;
+}
+
+.main .popup .main_popup .form .item_form {
+    padding: 5px 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.main .popup .main_popup .form .item_form label {
+    width: 20%;
+}
+
+.main .popup .main_popup .form .item_form input[type=text],
+input[type=number],
+select {
+    padding: 3px 10px;
+    outline: none;
+    width: 75%;
+    border-radius: 5px;
+    border: 0.5px solid gainsboro;
+}
+
+.main .popup .main_popup .form textarea {
+    padding: 3px 10px;
+    outline: none;
+    width: 75%;
+    border-radius: 5px;
+    border: 0.5px solid gainsboro;
+}
+
+.main .popup .main_popup .form .item_form i {
+    font-size: 7px;
+    color: red;
+    margin: auto 0;
+}
+
+.main .popup .main_popup .form .item_btn {
+    display: flex;
+    justify-content: space-around;
+    width: 20%;
+    margin: auto;
+}
+
+.main .popup .main_popup .form .item_btn button {
+    padding: 7px 15px;
+    border: none;
+    border-radius: 5px;
+}
+
+.main .popup .main_popup .form .item_btn .btn_save {
+    background-color: rgb(96, 149, 247);
+    color: white;
+}
+
+.main .popup .main_popup .form .item_btn .btn_hidden_popup {
+    background-color: gainsboro;
+}.main {
+    margin: 0;
+    padding: 0;
+}
+
+.main .nav_bar {
+    background: linear-gradient(#666, #333);
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+}
+
+.main .nav_bar .menu {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 15px;
+}
+
+.main .nav_bar .menu button:hover {
+    text-decoration: underline;
+}
+
+.main .nav_bar .menu .active {
+    text-decoration: underline;
+}
+
+.main .nav_bar .menu b {
+    color: #ff9343;
+}
+
+.main .nav_bar .menu button {
+    color: white;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0px 15px;
+}
+
+.main .nav_bar .user {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 50px;
+}
+
+.main .nav_bar .user i {
+    margin: auto;
+    font-size: 30px;
+    padding-right: 20px;
+}
+
+.main .nav_bar .user .name_user {
+    margin: auto;
+}
+
+.main .nav_bar .user .name_user p {
+    margin: 0;
+    padding: 0;
+}
+
+.main .nav_bar .user .name_user a {
+    color: white;
+}
+
+.main .table .navbar_table {
+    display: flex;
+    justify-content: flex-start;
+    padding: 7px 0px;
+}
+
+.main .table .navbar_table button {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.main .table .navbar_table .menu_table i {
+    padding: 0px 3px;
+}
+
+.main .table .main_table table {
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.main button {
+    border: none;
+    background-color: transparent;
+}
+
+.main .table .main_table table th,
+td {
+    border: 1px solid #d7d7d7;
+    padding: 5px;
+}
+
+.main .table .main_table table thead {
+    text-align: center;
+    background: linear-gradient(rgb(238, 238, 238), rgb(199, 199, 199));
+}
+
+
+/* css bg color */
+
+.main .bg_color {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 20%;
+    background-color: rgb(0, 0, 0);
+}
+
+
+/* css popup */
+
+.main .popup {
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 55vh;
+    right: 50vh;
+    background-color: white;
+    border-radius: 15px;
+    top: 26vh;
+}
+
+.main .popup .navbar_popup {
+    background-color: rgb(76, 150, 219);
+    display: flex;
+    justify-content: space-between;
+    border-radius: 15px 15px 0px 0px;
+    padding: 0px 15px;
+    height: 40px;
+}
+
+.main .popup .navbar_popup h3 {
+    color: white;
+    margin: auto 0;
+}
+
+.main .popup .navbar_popup button {
+    background-color: transparent;
+    border: none;
+    font-size: 25px;
+    color: white;
+}
+
+.main .popup .main_popup {
+    padding: 15px;
+    background-color: rgb(238, 238, 238);
+    border-radius: 0px 0px 15px 15px;
+}
+
+.main .popup .main_popup .form {
+    padding: 5px 0px;
+}
+
+.main .popup .main_popup .form .item_form {
+    padding: 5px 0px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.main .popup .main_popup .form .item_form label {
+    width: 20%;
+}
+
+.main .popup .main_popup .form .item_form input[type=text],
+input[type=number],
+select {
+    padding: 3px 10px;
+    outline: none;
+    width: 75%;
+    border-radius: 5px;
+    border: 0.5px solid gainsboro;
+}
+
+.main .popup .main_popup .form textarea {
+    padding: 3px 10px;
+    outline: none;
+    width: 75%;
+    border-radius: 5px;
+    border: 0.5px solid gainsboro;
+}
+
+.main .popup .main_popup .form .item_form i {
+    font-size: 7px;
+    color: red;
+    margin: auto 0;
+}
+
+.main .popup .main_popup .form .item_btn {
+    display: flex;
+    justify-content: space-around;
+    width: 20%;
+    margin: auto;
+}
+
+.main .popup .main_popup .form .item_btn button {
+    padding: 7px 15px;
+    border: none;
+    border-radius: 5px;
+}
+
+.main .popup .main_popup .form .item_btn .btn_save {
+    background-color: rgb(96, 149, 247);
+    color: white;
+}
+
+.main .popup .main_popup .form .item_btn .btn_hidden_popup {
+    background-color: gainsboro;
+}

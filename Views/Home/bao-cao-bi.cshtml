@@ -1,0 +1,225 @@
+﻿@{
+    ViewBag.Title = ViewData["PageTitle"];
+    int QuyenXem = Helper.NullToZero(ViewData["QuyenXem"]);
+}
+<div id="pagetitle">
+    <h2>@ViewData["PageTitle"]</h2>
+    
+</div>
+<input type="hidden" id="hidtotalPage" value="1" />
+<input type="hidden" id="hidPageIndex" value="1" />
+<input type="hidden" id="hidSuDung" value="" />
+<div class="split" style="background:#efefef;height:100%;">
+    <div class="listBaoCao">
+        <h2>Báo cáo theo chỉ tiêu</h2>
+        <div class="boxBC">
+            <a href="~/bao-cao-bi-301">1. Báo cáo theo dõi chỉ tiêu theo tần suất</a>
+            <a href="~/bao-cao-bi-302">2. Báo cáo theo dõi chỉ tiêu lũy kế theo tần suất</a>
+            @*<a href="~/bao-cao-bi-303">3. Báo cáo tỷ trọng số thực tế của chỉ tiêu con</a>
+            <a href="~/bao-cao-bi-304">4. Báo cáo số thực tế/ kế hoạch của 1 chỉ tiêu theo bộ phận</a>*@
+        </div>
+        <h2>Báo cáo so sánh 2 chỉ tiêu</h2>
+        <div class="boxBC">
+            <a href="~/bao-cao-bi-305">1. So sánh chỉ tiêu theo số thực tế</a>
+            <a href="~/bao-cao-bi-306">2. So sánh chỉ tiêu theo số thực tế lũy kế</a>
+            <a href="~/bao-cao-bi-307">3. So sánh chỉ tiêu theo số thực tế và số kế hoạch</a>
+            <a href="~/bao-cao-bi-308">4. So sánh chỉ tiêu lũy kế theo số thực tế và số kế hoạch</a>
+        </div>
+    </div>
+</div>
+<script>
+    function DangPhatTrien() {
+        MessageThongBao("Chức năng đang phát triển");
+        return false;
+    }
+    function openPopupSua(title) {
+        var id = $("#hidIDSelected").val();
+        if (id == 0 || id == null) { return; }
+        if (id.length > 0) id = id.substr(1);
+        openPopup(title, id);
+    }
+    function openPopup(title, id) {
+        id = EmptyNull(id);
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-thiet-lap-he-thong-muc-tieu/" + id,
+            "width": 545,
+            "height": 350,
+            "isModal": true,
+            "moveable": false,
+            "isFullScreen": false
+        });
+    }
+    function XoaData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+        if (!confirmDeleteVN()) { return; }
+        var idQuyen = $("#hidIDQuyen").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "tmp": tmp,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/XOA_HeThongMucTieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    MessageThanhCong("Xóa dữ liệu thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function ThanhCongThemMoi() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Thêm mới thành công");
+        LoadData();
+    }
+    function ThanhCongSua() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Lưu dữ liệu thành công");
+        LoadData();
+    }
+</script>
+<script>
+    function goToPage(e) {
+        var pageIndex = parseInt($("#hidPageIndex").val());
+        var totalRow = parseInt($("#hidtotalPage").val());
+        switch (e.currentTarget.id) {
+            case 'gofirst':
+                $("#hidPageIndex").val(1);
+                break;
+            case 'goprev':
+                if (pageIndex > 1) pageIndex = pageIndex - 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'gonext':
+                if (pageIndex < totalRow) pageIndex = pageIndex + 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'golast':
+                $("#hidPageIndex").val(totalRow);
+                break;
+        }
+        LoadData();
+    }
+    function setFilter(e, suDung) {
+        $("#hidSuDung").val(suDung);
+        $("#hidPageIndex").val(1);
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("filter").getElementsByTagName("span");
+        for (i = 0; i < tabFilter.length; i++) {
+            tabFilter[i].className = "";
+        }
+        e.currentTarget.className = "active";
+        LoadData();
+    }
+    function NapData() {
+        $("#hidPageIndex").val(1);
+        LoadData();
+    }
+    function toMonthYear(d) {
+        var todayTime = new Date();
+        var month = todayTime.getMonth() + 1;
+        var day = todayTime.getDate();
+        var year = todayTime.getFullYear();
+        return month + "/" + year;
+    }
+    function LoadData() { $("#hidIDSelected").val('');
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var idQuyen = $("#hidIDQuyen").val();
+        var suDung = $("#hidSuDung").val();
+        var pageIndex = $("#hidPageIndex").val();
+        //null:tất cả - 1: Đang sử dung - 0:không sử dụng
+        var Params = {
+            "suDung": suDung,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/thiet_lap_he_thong_muc_tieu_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                resetTable();
+                var list = result.list;
+                var pager = result.pager;
+                //Update pager
+                var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+                var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+                var toRow = pager.pageSize * pageIndex;
+                if (toRow > pager.totalRow) toRow = pager.totalRow;
+                $("#hidtotalPage").val(totalPage);
+                $("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+                $("#currentIndex").text(pageIndex + "/" + totalPage);
+
+                var max = list.length;
+                var tmp = "";
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idhtmt;
+                    var bsuDung = true;
+                    if (suDung == 0) { bsuDung = false; }
+                    if (suDung == null || suDung == '' || obj.suDung == bsuDung) {
+                        tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+                        tmp = tmp + '<td class="colchk"><span class="bleft"></span><input type="checkbox" onclick="BtnFire(this)"></td>';
+                        tmp = tmp + '<td>' + obj.maHTMT + '</td>';
+                        tmp = tmp + '<td>' + obj.tenHTMT + '</td>';
+                        tmp = tmp + '<td class="tc">' + EmptyNull(obj.nam) + '</td>';
+                        tmp = tmp + '<td class="tc">' + obj.sBatDau.substring(3) + '</td>';
+                        tmp = tmp + '<td class="tc">' + obj.sKetThuc.substring(3) + '</td>';
+                        if (obj.suDung == true)
+                            tmp = tmp + '<td class="tc"><input type="checkbox" checked="checked" onclick="return false;"/></td>';
+                        else tmp = tmp + '<td class="tc"><input type="checkbox" onclick="return false;"/></td>';
+                        if (obj.moTa == null)
+                            obj.moTa = '';
+                        tmp = tmp + '<td>' + obj.moTa + '</td>';
+                        tmp = tmp + '</tr>';
+                    }
+                }
+                $('#progress').css({ width: 100 + '%' });
+                $('#chkAll').prop('checked', false);
+                $('#gridbody').append(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "") 
+                event.preventDefault();
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadData();
+    });
+</script>

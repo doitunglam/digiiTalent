@@ -1,0 +1,60 @@
+.myModal {
+    font-family: sans-serif, Geneva, Tahoma, Arial;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    opacity: 0.5;
+    display: none;
+    z-index: 99;
+}
+
+.myPop {
+    position: fixed;
+    display: none;
+    z-index: 99;
+    min-width: 450px;
+    max-width: calc(100% - 100px);
+    max-height: calc(100% - 50px);
+    margin: auto;
+}
+
+.myPop-title {
+    font-size: 16px;
+    height: 16px;
+    line-height: 16px;
+    color: #fff;
+    background: linear-gradient(#66afe9, #228bdc);
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+    padding: 9px 8px 7px 18px;
+    cursor: move;
+}
+
+.myPop-close {
+    float: right;
+    cursor: pointer;
+    font-size: 32px;
+    line-height: 16px;
+}
+
+.myPop-content {
+    min-width: 450px;
+    min-height: 200px;
+    height: calc(100% - 42px);
+    border-radius: 0 0 10px 10px;
+    background-color: #f9f9fa;
+    color: #fff;
+    padding: 0;
+    border: solid 1px #bebebe;
+    border-top: none;
+}
+
+    .myPop-content iframe {
+        border: none;
+        border-radius: 0 0 10px 10px;
+    }

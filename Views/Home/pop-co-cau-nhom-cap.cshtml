@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "";
+    int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+    int QuyenSua = Helper.NullToZero(ViewData["QuyenSua"]);
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<div class="Content">
+    <div class="tableInput">
+        <table class="tblMaster">
+            <tr>
+                <th>Mã nhóm cấp <b class="required">※</b></th>
+                <td><input type="text" id="txtMaNhomCap" value="" maxlength="10" style="width:290px"/></td>
+            </tr>
+            <tr>
+                <th>Tên nhóm cấp <b class="required">※</b></th>
+                <td><input type="text" id="txtTenNhomCap" value="" maxlength="50" style="width:290px"/></td>
+            </tr>
+            <tr>
+                <th>Thứ tự <b class="required">※</b></th>
+                <td><input type="text" id="txtThuTu" value="" class="integer" maxlength="3" style="width:290px"/></td>
+            </tr>
+            <tr>
+                <th>Trạng thái</th>
+                <td><input type="checkbox" id="chkSuDung"/><label for="chkSuDung">Sử dụng</label></td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+        @{if (QuyenThem + QuyenSua > 0) {<span class="btn hl" onclick="SaveData(true);">Lưu</span>} }
+        <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+        <div class="clr"></div>
+    </div>
+</div>
+<div class="clr"></div>
+<script>
+    function SaveData() {
+        var _MaNhomCap = $("#txtMaNhomCap").val();
+        var _TenNhomCap = $("#txtTenNhomCap").val();
+        var _ThuTu = $("#txtThuTu").val();
+        var _SuDung = $("#chkSuDung").is(":checked");
+        //Validate data
+        var iError = 0;
+        iError = iError + validateNull("txtMaNhomCap");
+        iError = iError + validateNull("txtTenNhomCap");
+        iError = iError + validateNull("txtThuTu");
+        if (iError > 0) {
+            MessageLoi("Phải nhập các thông tin bắt buộc");
+            return;
+        }
+        //Insert data
+        var obj = {
+            IDNhomCap: $("#hidID").val(),
+            MaNhomCap: _MaNhomCap,
+            TenNhomCap: _TenNhomCap,
+            ThuTu: _ThuTu,
+            SuDung: _SuDung
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/LUU_CoCauNhomCapJson',
+            context: document.body,
+            data: obj,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    if ($("#hidID").val()==0)
+                        parent.ThanhCongThemMoi();
+                    else parent.ThanhCongSua();
+                }
+
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                event.preventDefault();
+            }
+        });
+    }
+</script>
+<script>
+    function LoadData() {
+        var objData = @Html.Raw(Json.Serialize(ViewData["objData"]));
+        var obj = objData.value.data;
+        $("#hidID").val(obj.idNhomCap);
+        $("#txtMaNhomCap").val(obj.maNhomCap);
+        $("#txtTenNhomCap").val(obj.tenNhomCap);
+        $("#txtThuTu").val(obj.thuTu);
+        $("#txtTenNhomCapNgan").val(obj.tenNhomCapNgan);
+        if (obj.suDung == true)
+            $("#chkSuDung").prop("checked", true);
+    }
+    LoadData();
+</script>

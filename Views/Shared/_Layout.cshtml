@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    @{ string iVersion = "1.31";}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/css/site.css?@iVersion" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/apexcharts.js"></script>
+    <link href="~/Scripts/select2.min.css" rel="stylesheet" />
+    <script src="~/Scripts/select2.min.js"></script>
+    <script src="~/Scripts/select2.multi-checkboxes.js"></script>
+    <link href="~/css/pop.css" rel="stylesheet" />
+    <script src="~/css/pop.js"></script>
+    <script src="~/Scripts/digii.js?@iVersion"></script>
+    <script src="~/Scripts/Notify.js"></script>
+    <link href="~/Scripts/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Scripts/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.vi.min.js"></script>
+</head>
+<body>
+    @{ 
+        var user = (DefaultUser)ViewData["dUser"];
+        if (user == null) user = new DefaultUser();
+        long ID = user.UserID;
+        var settingURL = ViewData["SettingURL"];
+    }
+    <div id="progress"></div>
+    <div id="outer">
+        <div id="header">
+            <div id="logo">
+                <svg focusable="false" viewBox="0 0 24 24" onclick="setmenu();"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+                <div class="appmenu">
+                    <div class="applogo dropbtn">
+                        <img src="~/images/logo.png" class="dropbtn">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            
+        </script>
+        <div id="mnleft" class="custom">
+            <div class="mnleftText">
+                @{ if (user.UserID > 0)
+                    {
+                        <div class="mnbox">
+                            <span class="mn_tit"><img src="~/images/arrow_down.png" onclick="mnClose(this);">Báo cáo</span>
+                            <div class="mn_sub">
+                                <a href="~/bao-cao"><span @ViewData["bao-cao"]>Báo cáo</span></a>
+                            </div>
+                        </div>
+                        <div class="mnbox">
+                            <span class="mn_tit"><img src="~/images/arrow_down.png" onclick="mnClose(this);">Quản trị tài năng</span>
+                            <div class="mn_sub">
+                                <a href="~/tao-dot-phan-tich"><span @ViewData["tao-dot-phan-tich"]>Tạo đợt phân tích</span></a>
+                                <a href="~/phan-tich-9-hop"><span @ViewData["phan-tich-9-hop"]>Phân tích 9 hộp</span></a>
+                            </div>
+                        </div>
+                        <div class="mnbox">
+                            <span class="mn_tit"><img src="~/images/arrow_down.png" onclick="mnClose(this);">Thiết lập</span>
+                            <div class="mn_sub">
+                                <a href="~/quy-uoc"><span @ViewData["quy-uoc"]>Quy ước</span></a>
+                                <a href="~/mo-hinh-9-hop"><span @ViewData["mo-hinh-9-hop"]>Mô hình 9 hộp</span></a>
+                            </div>
+                        </div>
+                    }
+                }
+                <div class="mnbox">
+                    <span class="mn_tit"><img src="~/images/arrow_down.png" onclick="mnClose(this);">Cơ cấu</span>
+                    <div class="mn_sub">
+                        @{ if (user.UserID > 0)
+                            {<a href="~/co-cau-nhom-cap"><span @ViewData["co-cau-nhom-cap"]>Nhóm cấp</span></a>} }
+                        <a href="~/co-cau-to-chuc"><span @ViewData["co-cau-to-chuc"]>Tổ chức</span></a>
+                        <a href="~/co-cau-chuc-danh"><span @ViewData["co-cau-chuc-danh"]>Chức danh</span></a>
+                        <a href="~/co-cau-nhan-su"><span @ViewData["co-cau-nhan-su"]>Nhân sự</span></a>
+                        @{ if (user.UserID == 0 && ViewData["urlRefresh"] != null)
+                            {<a href="~/hrs/@ViewData["urlRefresh"]"><span style="color:red;font-weight:bold;">Khởi tạo lại</span></a>} }
+                    </div>
+                </div>
+                <div class="mnbox">
+                    <span class="mn_tit"><img src="~/images/arrow_down.png" onclick="mnClose(this);">Quản trị</span>
+                    <div class="mn_sub">
+                        @{ if (user.UserID > 0)
+                            {<a href="~/admin-nhom-quyen"><span @ViewData["admin-nhom-quyen"]>Nhóm quyền</span></a>
+                            <a href="~/admin-phan-quyen"><span @ViewData["admin-phan-quyen"]>Phân quyền</span></a>
+                            <a href="~/admin-nguoi-dung"><span @ViewData["admin-nguoi-dung"]>Người dùng</span></a>} }
+                    </div>
+                </div>
+            </div>
+            <div class="mnleftIcon">
+            </div>
+        </div>
+        <div id="content" class="content">
+            <div id="banner">
+                <div class="pnright">
+                    <div class="alert">
+                        <img src="images/bell.png" />
+                    </div>
+                    <div class="mnuser">
+                        <img src="@user.ImagePath" class="user" />
+                        <div class="fl">
+                            <span class="uname">@user.UserName</span>
+                            <span class="ucode">@user.UserCode</span>
+                        </div>
+                        <div class="clr"></div>
+                        <div class="userdrop">
+                            <form action="~/home/logout">
+                                <img src="~/images/on-off.png" /><input type="submit" value="Đăng xuất"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+               
+                @*<div class="pnsearch">
+                <img src="~/images/search.png">
+                <input type="text" class="search" placeholder="Tìm kiếm nâng cao">
+                <span class="spsearch"><i class="arrdown"></i></span>
+            </div>*@
+            </div>
+            <input type="hidden" id="hidIDQuyen" value="@ViewData["ActionXem"]" />
+            <input type="hidden" id="hidIDSelected" value="0" />
+            <input type="text" id="KeyListener" value="" style="width:0;height:0;position:absolute;bottom:0;padding:0;border:none;">
+            @RenderBody()
+            <div id="error"></div>
+            <div id="notifications"></div>
+        </div>
+    </div>
+    <script>
+        $(".integer").inputFilter(function (value) {
+            return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+        });
+        $('.datepicker').datepicker({
+            format: "dd/mm/yyyy",
+            todayBtn: "linked",
+            language: "vi",
+            orientation: "bottom auto",
+            autoclose: true,
+            daysOfWeekHighlighted: "0,6",
+            todayHighlight: true
+        }).on("change", function () {
+            checkNull(this.id);
+        });
+        function waitDev() {
+            Notify("Chức năng đang được xây dựng!", null, null, 'info');
+            return false;
+        }
+        $('input').attr('autocomplete', 'off');
+        function doiMatKhauPopup(title, id) {
+            id = EmptyNull(id);
+            new top.PopLayer({
+                "title": title,
+                "url": "pop-doi-mat-khau",
+                "width": 450,
+                "height": 220,
+                "isModal": true,
+                "moveable": false,
+                "isFullScreen": false
+            });
+        }
+        function ThanhCongSuaPass() {
+            document.getElementById('myPop-close').click();
+            MessageThanhCong("Đổi mật khẩu thành công");
+            LoadData();
+        }
+        function ThanhCongDongBo() {
+            document.getElementById('myPop-close').click();
+            MessageThanhCong("Đồng bộ dữ liệu thành công");
+            LoadData();
+        }
+        function ThanhCongImport() {
+            document.getElementById('myPop-close').click();
+            MessageThanhCong("Import dữ liệu thành công");
+            LoadData();
+        }
+        function ShowDrop(e) {
+            var submenuitem = $(e).find('.dropitem');
+            submenuitem.slideToggle(200);
+        }
+        function XemCanhBao(rowID, IDHTMT, IDHTTS, IDDanhGia, IDNguoiPhuTrach, sCreatedDate, IDLoaiCanhBao) {
+            var Params = {
+                "idHTMT": IDHTMT,
+                "idHTTS": IDHTTS,
+                "idDanhGia": IDDanhGia,
+                "idNguoiPhuTrach": IDNguoiPhuTrach,
+                "sCreatedDate": sCreatedDate,
+                "idLoaiCanhBao": IDLoaiCanhBao
+            };
+            
+            $.ajax({
+                type: "GET",
+                traditional: true,
+                async: true,
+                cache: false,
+                url: '/THI_XemCanhBao_json',
+                context: document.body,
+                data: Params,
+                success: function (result) {
+                    if (result.err.length > 0) {
+                        if (result.err == -1)
+                            MessageLoi("Lỗi cập nhật trạng thái cảnh báo");
+                        else MessageLoi(result.err);
+                        return;
+                    }
+                    var ele = document.getElementById(rowID);
+                    if (ele != null) ele.setAttribute("class", "aitem r1");
+                },
+                error: function (err) {
+                    if (err.responseText != "")
+                        event.preventDefault();
+                }
+            });
+        }
+        $(".ddlSearchClear").click(function () {
+            var ele = $(this).parent().find('.ddlSearch');
+            ele.attr('rel', '');
+            ele.text('');
+            this.style.display = 'none';
+            var items = $(this).parent().find('select');
+            for (var i = 0; i < items.length; i++) {
+                $(items[i]).val('').trigger('change')
+            }
+        });
+        $(document).click(function (e) {
+            if (e.target.matches('.ddlSearch')) {
+                var submenuitem = $(e.target).parent().find('.dropitem');
+                submenuitem.slideToggle(100);
+                return;
+            }
+            if (e.target.matches('.ddlSearchDrop')) {
+                var submenuitem = $(e.target).parent().parent().find('.dropitem');
+                submenuitem.slideToggle(100);
+                return;
+            }
+            var cName = e.target.className;
+            if (cName.includes("select") || cName.includes("dropitem")) {
+                return;
+            }
+
+            if (!e.target.matches('.dropbtn')) {
+                var items = document.getElementsByClassName("dropitem");
+                for (var i = 0; i < items.length; i++) {
+                    items[i].style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

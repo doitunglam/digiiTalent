@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    @{ string iVersion = "1.31";}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/css/popup.css?@iVersion" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/apexcharts.js"></script>
+    <link href="~/Scripts/select2.min.css" rel="stylesheet" />
+    <script src="~/Scripts/select2.min.js"></script>
+    <script src="~/Scripts/digii.js?@iVersion"></script>
+    <script src="~/Scripts/Notify.js"></script>
+    <link href="~/Scripts/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Scripts/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.vi.min.js"></script>
+</head>
+<body>
+    <input type="hidden" id="hidIDQuyen" value="@ViewData["ActionXem"]" />
+    <input type="hidden" id="hidID" value="@ViewData["ID"]" />
+    <div id="outer">
+        @RenderBody()
+    </div>
+    <div id="notifications"></div>
+    <script>
+        $(".integer").inputFilter(function (value) {
+            return /^\d*$/.test(value);    // Allow digits only, using a RegExp
+        });
+        $('.datepicker').datepicker({
+            format: "dd/mm/yyyy",
+            todayBtn: "linked",
+            language: "vi",
+            orientation: "bottom auto",
+            autoclose: true,
+            daysOfWeekHighlighted: "0,6",
+            todayHighlight: true
+        }).on("change", function () {
+            checkNull(this.id);
+        });
+        $('.monthpicker').datepicker({
+            format: "mm/yyyy",
+            language: "vi",
+            orientation: "bottom auto",
+            autoclose: true,
+            minViewMode: 1
+        }).on("change", function () {
+            checkNull(this.id);
+        });
+        $('input').attr('autocomplete', 'off');
+    </script>
+</body>
+</html>

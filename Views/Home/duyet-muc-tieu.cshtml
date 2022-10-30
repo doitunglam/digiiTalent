@@ -1,0 +1,1390 @@
+﻿@{
+    ViewBag.Title = ViewData["PageTitle"];
+    int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+    int QuyenDuyet1 = Helper.NullToZero(ViewData["QuyenDuyet1"]);
+    int QuyenDuyet2 = Helper.NullToZero(ViewData["QuyenDuyet2"]);
+    int QuyenDuyet3 = Helper.NullToZero(ViewData["QuyenDuyet3"]);
+
+    int? defaultTrangThaiDuyet = null;//Chờ duyệt
+
+    int defaultCapDuyet = 1;
+    if (QuyenDuyet3 > 0) defaultCapDuyet = 3;
+    else if (QuyenDuyet2 > 0) defaultCapDuyet = 2;
+}
+<div id="pagetitle">
+    <h2>@ViewData["PageTitle"]</h2>
+    <div id="filter" class="filter">
+        <span onclick="setFilter(event,'')" @if(defaultTrangThaiDuyet==null){WriteLiteral("class='active'");}>Tất cả</span>
+        <span onclick="setFilter(event,0)" @if(defaultTrangThaiDuyet==0){WriteLiteral("class='active'");}>Chờ duyệt</span>
+        <span onclick="setFilter(event,1)" @if(defaultTrangThaiDuyet==1){WriteLiteral("class='active'");}>Đã duyệt</span>
+        <span onclick="setFilter(event,2)" @if(defaultTrangThaiDuyet==2){WriteLiteral("class='active'");}>Trả về</span>
+        @*<span onclick="setFilter(event,3)" @if(defaultTrangThaiDuyet==3){WriteLiteral("class='active'");}>Không duyệt</span>*@
+    </div>
+    <div id="filterQuyen" class="filter">
+        <span>Cấp duyệt</span>
+        <span onclick="setFilterQuyen(event,1)" @if(defaultCapDuyet==1){WriteLiteral("class='circle1'");}else{WriteLiteral("class='circle0'");}>1</span>
+        <span onclick="setFilterQuyen(event,2)" @if(defaultCapDuyet==2){WriteLiteral("class='circle1'");}else{WriteLiteral("class='circle0'");}>2</span>
+        <span onclick="setFilterQuyen(event,3)" @if(defaultCapDuyet==3){WriteLiteral("class='circle1'");}else{WriteLiteral("class='circle0'");}>3</span>
+    </div>
+    <style>
+        .circleTT0, .circleTT1, .circleTT2, .circleTT3 {
+            background: #bbb;
+            border-radius: 15px;
+            padding: 3px 7px !important;
+            line-height: 5px;
+            border: none !important;
+            margin: 0 2px;
+            font-size: 13px;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .circleTT0 {
+            background: #aaa;
+        }
+
+        .circleTT1 {
+            background: #228bdc;
+        }
+
+        .circleTT2 {
+            background: #f50000;
+        }
+
+        .circleTT3 {
+            background: #f3e97a;
+        }
+
+        .tbl table tr{
+            background: #f3f3f3;
+        }
+    </style>
+</div>
+<input type="hidden" id="hidtotalPage" value="1" />
+<input type="hidden" id="hidPageIndex" value="1" />
+<input type="hidden" id="hidIDLoaiTanSuat" value="" />
+<input type="hidden" id="hidTrangThaiDuyet" value="@defaultTrangThaiDuyet" />
+<input type="hidden" id="hidCapDuyet" value="@defaultCapDuyet" />
+<input type="hidden" id="hidQuyenDuyet1" value="@QuyenDuyet1" />
+<input type="hidden" id="hidQuyenDuyet2" value="@QuyenDuyet2" />
+<input type="hidden" id="hidQuyenDuyet3" value="@QuyenDuyet3" />
+<input type="hidden" id="hidExpand" value="0" />
+<link href="~/css/circle.css" rel="stylesheet" />
+<div class="pnfilter">
+    <div class="pnbnt">
+        <div class="pnbtn">
+            <div class="search0">
+                <select id="ddlHeThongMucTieu" style="width:100px;"></select>
+                <div class="fl"><select id="ddlKyDanhGia" style="width:100px"><option></option></select></div>
+                <select id="ddlNhomCap" style="width: 100px"><option></option></select>
+                <div class="fl"><select id="ddlChuThe" style="width: 120px"><option></option></select></div>
+                <select id="ddlToChuc" style="width: 120px"><option></option></select>
+                <div class="fl relative">
+                    <div id="txtNguoiPhuTrach" rel="" class="ddlSearch dropbtn" style="width:120px" data-placeholder="Người phụ trách"></div>
+                    <span class="ddlSearchClear">×</span>
+                    <span class="ddlSearchArrow"><b class="ddlSearchDrop"></b></span>
+                    <div class="dropitem ddlSearchBox">
+                        <select id="ddlToChucPhuTrach" style="width:200px"><option></option></select>
+                        <span class="break"></span>
+                        <select id="ddlNguoiPhuTrach" style="width:200px"><option></option></select>
+                    </div>
+                </div>
+                <select id="ddlLoaiMucTieu" style="min-width:75px"><option></option></select>
+                <input type="text" id="txtKeyword" value="" style="width:100px" placeholder="Nhập từ khóa">
+                <select id="ddlTrangThaiCapDuyet" style="min-width:100px"><option></option></select>
+                <span class="btn btnNap" onclick="NapData();" style="margin-top:1px;"><img src="~/images/nap.png" />Nạp</span>
+                <script>
+                var ddlHeThongMucTieuData = @Html.Raw(Json.Serialize(ViewData["ddlHeThongMucTieu"]));
+                $("#ddlHeThongMucTieu").select2({
+                    placeholder: "Hệ thống mục tiêu",
+                    data: ddlHeThongMucTieuData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: false
+                }).on('select2:select', function (e) {
+                    BindKyDanhGia();
+                });
+                var ddlKyDanhGiaData = @Html.Raw(Json.Serialize(ViewData["ddlKyDanhGia"]));
+                $("#ddlKyDanhGia").select2({
+                    placeholder: "Kỳ đánh giá",
+                    data: ddlKyDanhGiaData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    var data = e.params.data;
+                    var idParent = data.idParent;
+                    $("#hidIDLoaiTanSuat").val(idParent);
+                });
+                var ddlNhomCapData = @Html.Raw(Json.Serialize(ViewData["ddlNhomCap"]));
+                $("#ddlNhomCap").select2({
+                    placeholder: "Cấp",
+                    data: ddlNhomCapData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    BindToChuc();
+                });
+                var ddlChuTheData = @Html.Raw(Json.Serialize(ViewData["ddlChuThe"]));
+                $("#ddlChuThe").select2({
+                    placeholder: "Chủ thể chỉ tiêu",
+                    data: ddlChuTheData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                });
+                var ddlToChucData = @Html.Raw(Json.Serialize(ViewData["ddlToChuc"]));
+                $("#ddlToChuc").select2({
+                    placeholder: "Đơn vị",
+                    data: ddlToChucData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                });
+                $("#ddlToChucPhuTrach").select2({
+                    placeholder: "Đơn vị",
+                    data: ddlToChucData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    BindNguoiPhuTrach();
+                });
+                var ddlLoaiMucTieuData = @Html.Raw(Json.Serialize(ViewData["ddlLoaiMucTieu"]));
+                $("#ddlLoaiMucTieu").select2({
+                    placeholder: "Loại",
+                    data: ddlLoaiMucTieuData.value,
+                    allowClear: true
+                });
+                var TrangThaiCapDuyetData = @Html.Raw(Json.Serialize(ViewData["TrangThaiCapDuyet"]));
+                $("#ddlTrangThaiCapDuyet").select2({
+                    placeholder: "Trạng thái duyệt",
+                    data: TrangThaiCapDuyetData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                });
+                $("#ddlNguoiPhuTrach").select2({
+                    ajax: {
+                        url: '/nhan_su_search_JsonDDL',
+                        data: function (params) {
+                            var query = {
+                                listID: $("#ddlToChucPhuTrach").val(),
+                                keyword: params.term,
+                                idQuyen: $("#hidIDQuyen").val()
+                            }
+                            return query;
+                        },
+                        dataType: 'json',
+                        processResults: function (data) {
+                            return {
+                                results: data
+                            };
+                        }
+                    },
+                    placeholder: "Người phụ trách",
+                    templateResult: formatNhanSu,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    var data = $(this).select2('data');
+                    var ddlSearch = $(this).parent().parent().find(".ddlSearch")[0];
+                    ddlSearch.setAttribute('rel', data[0].id);
+                    ddlSearch.innerHTML = data[0].text;
+                    $(this).parent().parent().find(".ddlSearchClear").css('display', 'inline');
+                    $(this).parent().slideToggle(0);
+                }).on('select2:unselect', function (e) {
+                    var ddlSearch = $(this).parent().parent().find(".ddlSearch")[0];
+                    ddlSearch.setAttribute('rel', '');
+                    ddlSearch.innerHTML = '';
+                    $(this).parent().parent().find(".ddlSearchClear").css('display', 'inline');
+                });
+                </script>
+                <div class="clr"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function BindKyDanhGia() {
+            $("#ddlKyDanhGia").html("");
+            $("#ddlKyDanhGia").select2({
+                ajax: {
+                    url: '/ky_danh_gia_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idHTMT: $("#ddlHeThongMucTieu").val(),
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Kỳ đánh giá",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+        }
+        function BindToChuc() {
+            $("#ddlChuThe").html("");
+            $("#ddlChuThe").select2({
+                ajax: {
+                    url: '/chu_the_chi_tieu_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idNhomCap: $("#ddlNhomCap").val(),
+                            idQuyen: $("#hidIDQuyen").val(),
+                            iType: 0
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Chủ thể chỉ tiêu",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+            $("#ddlToChuc").html("");
+            $("#ddlToChuc").select2({
+                ajax: {
+                    url: '/co_cau_to_chuc_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idNhomCap: $("#ddlNhomCap").val(),
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Đơn vị",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+            $("#ddlToChucPhuTrach").html("");
+            $("#ddlToChucPhuTrach").select2({
+                ajax: {
+                    url: '/co_cau_to_chuc_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idNhomCap: $("#ddlNhomCap").val(),
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Đơn vị",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+        }
+        function BindNguoiPhuTrach() {
+            $("#ddlNguoiPhuTrach").html("");
+            $("#ddlNguoiPhuTrach").select2({
+                ajax: {
+                    url: '/nhan_su_search_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            listID: $("#ddlToChucPhuTrach").val(),
+                            keyword: params.term,
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Người phụ trách",
+                templateResult: formatNhanSu,
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+        }
+    </script>
+    <div class="pnbnt">
+        <div class="pnbtn">
+            @{if (QuyenThem > 0)
+                {<span class="btnhide" id="btnSua" onclick="openPopupSua('Sửa chỉ tiêu')"><img src="~/images/pencil.png">Sửa</span><span class="bdl"></span>} }
+            <div id="divDuyet" @if (QuyenDuyet1 == 0) { WriteLiteral("style='display:none'"); }>
+                <span class="btnhide" id="btnDuyet" onclick="DuyetData();"><img src="~/images/duyet.png">Duyệt</span>
+                <span class="btnhide" id="btnHuyDuyet" onclick="HuyDuyetData();"><img src="~/images/delete.png">Hủy duyệt</span>
+                <span class="btnhide" id="btnTraVe" onclick="TraVeData();"><img src="~/images/tra_ve.png">Trả về</span>
+                @*<span class="btnhide" id="btnKhongDuyet" onclick="KhongDuyetData();"><img src="~/images/khong_duyet.png">Không duyệt</span>*@
+            </div>
+            @{if (QuyenThem > 0)
+                {<span class="bdl"></span>
+                    <span class="btn" id="btnTinhTrongSo" onclick="TinhTrongSo();"><img src="./images/calc.png">Tính trọng số</span>} }
+            <div class="pager">
+                <div id="pageinfo" class="pageinfo">&nbsp;</div>
+                <div class="fr">
+                    <span id="gofirst" onclick="goToPage(event)">&lt;&lt;</span>
+                    <span id="goprev" onclick="goToPage(event)">&lt;</span>
+                    <span id="currentIndex"></span>
+                    <span id="gonext" onclick="goToPage(event)">&gt;</span>
+                    <span id="golast" onclick="goToPage(event)">&gt;&gt;</span>
+                </div>
+            </div>
+            <div id="btnExpand" class="expand">
+                <span onclick="setExpandCol(event,'0')" class="active">Thu gọn</span>
+                <span onclick="setExpandCol(event,'1')" class="">Mở rộng</span>
+            </div>
+            <div class="clr"></div>
+        </div>
+    </div>
+</div>
+<div class="split splitfull">
+    <div class="tbl" role="region" aria-labelledby="HeadersCol" tabindex="0">
+        <table width="100%" id="gridbody">
+            <tr class="rhead">
+                <th class="colchk freezy"><input type="checkbox" id="chkAll" onclick="setCheckAll(this);" /><span class="bdr"></span><span class="bdb"></span></th>
+                <th class="freezy" width="80">Mã<span class="bdr"></span><span class="bdb"></span></th>
+                <th class="freezy" width="78">Trạng thái duyệt<span class="bdr"></span><span class="bdb"></span></th>
+                <th class="freezy" width="250">Chỉ tiêu<span class="bdr"></span><span class="bdb"></span></th>
+                <th width="65">Số kế hoạch<span class="bdb"></span></th>
+                <th width="60">Đơn vị tính<span class="bdb"></span></th>
+                <th width="60">@ViewData["TrongSo"]<span class="bdb"></span></th>
+                <th width="50">Trọng số %<span class="bdb"></span></th>
+                <th width="60">Kỳ đánh giá<span class="bdb"></span></th>
+                <th width="120">Chủ thể chỉ tiêu<span class="bdb"></span></th>
+                <th width="130">Phân công cho<span class="bdb"></span></th>
+                <th width="120">Chức danh<span class="bdb"></span></th>
+                <th width="120" class="colAuto colHide0">Đơn vị<span class="bdb"></span></th>
+                <th width="65">Kỳ hạn<span class="bdb"></span></th>
+                <th width="150" class="ttd colAuto colHide0">Cấp 1<br />Phản hồi<span class="bdb"></span></th>
+                <th width="75" class="ttd colAuto colHide0">Cấp 1<br />Ngày duyệt<span class="bdb"></span></th>
+                <th width="160" class="ttd colAuto colHide0">Cấp 1<br />Người duyệt<span class="bdb"></span></th>
+                <th width="150" class="ttd colAuto colHide0">Cấp 2<br />Phản hồi<span class="bdb"></span></th>
+                <th width="75" class="ttd colAuto colHide0">Cấp 2<br />Ngày duyệt<span class="bdb"></span></th>
+                <th width="160" class="ttd colAuto colHide0">Cấp 2<br />Người duyệt<span class="bdb"></span></th>
+                <th width="150" class="ttd colAuto colHide0">Cấp 3<br />Phản hồi<span class="bdb"></span></th>
+                <th width="75" class="ttd colAuto colHide0">Cấp 3<br />Ngày duyệt<span class="bdb"></span></th>
+                <th width="160" class="ttd colAuto colHide0">Cấp 3<br />Người duyệt<span class="bdb"></span></th>
+                <th><span class="bdb"></span></th>
+            </tr>
+        </table>
+    </div>
+    <style>
+        .circleTT {
+            border: solid 1px #999;
+            border-radius: 15px;
+            padding: 1px 5px 0px 4px !important;
+            margin-left: -1px;
+            margin-top: 5px;
+            font-size: 13px;
+            float: left;
+            line-height: 15px;
+        }
+
+        table .ttname {
+            vertical-align: middle;
+            height: 30px;
+            display: table-cell;
+            padding: 0;
+            margin: 0;
+            line-height: 1.2;
+            padding-left: 2px;
+        }
+        .btndropitem {
+            width: 130px;
+        }
+
+        div.splitfull {
+            height: calc(100% - 59px);
+        }
+
+        .TeamInfo {
+            overflow: hidden;
+            height: 90px;
+            padding: 10px 0;
+            background: linear-gradient(#f7f7f7, #eee);
+            color: #666;
+            border-bottom: solid 1px #bbb;
+            min-width: 970px
+        }
+
+            .TeamInfo table {
+                border-collapse: collapse;
+                min-width: 970px;
+            }
+
+                .TeamInfo table th {
+                    text-align: left;
+                    text-transform: uppercase;
+                    padding-bottom: 7px;
+                    font-size: 12px;
+                    color: #333;
+                }
+
+                .TeamInfo table th, .TeamInfo table td {
+                    padding-left: 15px;
+                    padding-right: 5px;
+                    border-left: solid 1px #e1e1e1;
+                    vertical-align: top;
+                }
+
+                    .TeamInfo table th:first-child, .TeamInfo table td:first-child {
+                        border-left: none;
+                    }
+
+            .TeamInfo b {
+                font-weight: bold;
+                color: #333;
+            }
+
+            .TeamInfo .btn {
+                float: left;
+                margin-top: -7px;
+                margin-right: 6px;
+                border-radius: 5px;
+            }
+
+            .TeamInfo .date {
+                font-size: 12px;
+                color: #888;
+            }
+
+        th.none, td.none {
+            border: none !important;
+        }
+
+        svg.big {
+            width: 60px;
+            height: 60px;
+            margin-right: -20px;
+        }
+
+            svg.big text {
+                font-size: 0.7em;
+            }
+
+        .colfix {
+            width: 75px !important;
+            display: inline-block;
+            float: left;
+        }
+
+        tr.BF {
+            font-weight: bold;
+            font-style: normal;
+            background: #d1ebff !important
+        }
+        .BF:hover td {
+            background: #d1ebff !important
+        }
+        tr.BFF {
+            font-weight: bold;
+            background: #e9f6ff !important
+        }
+        .BFF:hover td{
+            background: #e9f6ff !important
+        }
+        th.ttd {
+        }
+        td.ttd {
+            color: #538dd5;
+        }
+
+        tr img.exp {
+            float: left;
+            margin-top: -3px;
+            margin-bottom: -3px;
+        }
+
+        tr td.P1 {
+            padding-left: 15px;
+        }
+
+        tr td.P2 {
+            padding-left: 30px;
+        }
+
+        tr td.P3 {
+            padding-left: 45px;
+        }
+
+        tr td.P4 {
+            padding-left: 60px;
+        }
+
+        span.progress {
+            margin-left: 3px;
+            line-height: 33px;
+        }
+
+        #gridbody th:nth-child(1),
+        #gridbody td:nth-child(1) {
+            left: -1px;
+        }
+
+        #gridbody th:nth-child(2),
+        #gridbody td:nth-child(2) {
+            left: 33px;
+        }
+
+        #gridbody th:nth-child(3),
+        #gridbody td:nth-child(3) {
+            left: 124px;
+        }
+
+        #gridbody th:nth-child(4),
+        #gridbody td:nth-child(4) {
+            left: 213px;
+        }
+        td.freezy {
+            background: #f3f3f3;
+        }
+        tr.BF td.freezy {
+            background: #d1ebff !important
+        }
+
+        tr.BFF td.freezy {
+            background: #e9f6ff !important
+        }
+    </style>
+</div>
+<script>
+    function openPopupSua(title) {
+        var id = $("#hidIDSelected").val();
+        if (id == 0 || id == null) { return; }
+        if (id.length > 0) id = id.substr(1);
+        openPopup(title, id);
+    }
+    function openPopup(title, id) {
+        var idCapDuyet = $("#hidCapDuyet").val();
+        id = EmptyNull(id);
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-muc-tieu/?id=" + id + "&idCapDuyet=" + idCapDuyet,
+            "width": 1200,
+            "isModal": true,
+            "moveable": true,
+            "isFullScreen": true
+        });
+    }
+    function openMucTieuCon(title) {
+        var id = $("#hidIDSelected").val();
+        if (id == 0 || id == null) { return; }
+        if (id.length > 0) id = id.substr(1);
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-muc-tieu_con/" + id,
+            "width": 1320,
+            "height": 670,
+            "isModal": true,
+            "moveable": true,
+            "isFullScreen": true
+        });
+    }
+    function OpenImport(title) {
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-import-muc-tieu",
+            "width": 450,
+            "height": 220,
+            "isModal": true,
+            "moveable": true,
+            "isFullScreen": false
+        });
+    }
+    function displayError(idCapDuyet, code, iErr) {
+        if (iErr == "-1") { MessageLoi("[" + code + "] - không có quyền duyệt"); }
+        else if (iErr == "-99") { MessageLoi("[" + code + "] - đã duyệt đánh giá tổng hợp"); }
+        else if (iErr == "-98") { MessageLoi("[" + code + "] - đã duyệt đánh giá"); }
+        else if (iErr == "-31") { MessageLoi("[" + code + "] - cấp 3 đã duyệt"); }
+        else if (iErr == "-32") { MessageLoi("[" + code + "] - cấp 3 trả về"); }
+        else if (iErr == "-33") { MessageLoi("[" + code + "] - cấp 3 không duyệt"); }
+        else if (iErr == "-21")
+            if (idCapDuyet == 3)
+                { MessageLoi("[" + code + "] - chờ duyệt cấp 3"); }
+            else { MessageLoi("[" + code + "] - cấp 2 đã duyệt"); }
+        else if (iErr == "-22") { MessageLoi("[" + code + "] - cấp 2 trả về"); }
+        else if (iErr == "-23") { MessageLoi("[" + code + "] - cấp 2 không duyệt"); }
+        else if (iErr == "-11")
+            if (idCapDuyet == 2)
+                { MessageLoi("[" + code + "] - chờ duyệt cấp 2"); }
+            else { MessageLoi("[" + code + "] - cấp 1 đã duyệt"); }
+        else if (iErr == "-12") { MessageLoi("[" + code + "] - cấp 1 trả về"); }
+        else if (iErr == "-13") { MessageLoi("[" + code + "] - cấp 1 không duyệt"); }
+        else if (iErr == "-10") { MessageLoi("[" + code + "] - chờ duyệt cấp 1"); }
+        else { MessageLoi("[" + code + "] - lỗi không xác định"); }
+    }
+    function DuyetData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "idHTMT": idHTMT,
+            "tmp": tmp,
+            "idCapDuyet": idCapDuyet
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/DUYET_MucTieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    var array = result.err.split(';');
+                    for (var iErr = 0; iErr < array.length; iErr = iErr + 2) {
+                        var code = $("#r" + array[iErr]).find("td:eq(1)").text();
+                        displayError(idCapDuyet, code, array[iErr + 1]);
+                    }
+                }
+                else {
+                    MessageThanhCong("Duyệt thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function HuyDuyetData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "idHTMT": idHTMT,
+            "tmp": tmp,
+            "idCapDuyet": idCapDuyet
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/HUY_DUYET_MucTieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    var array = result.err.split(';');
+                    for (var iErr = 0; iErr < array.length; iErr = iErr + 2) {
+                        var code = $("#r" + array[iErr]).find("td:eq(1)").text();
+                        displayError(idCapDuyet, code, array[iErr + 1]);
+                    }
+                }
+                else {
+                    MessageThanhCong("Hủy duyệt thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function TraVeData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "idHTMT": idHTMT,
+            "tmp": tmp,
+            "idCapDuyet": idCapDuyet
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/TRA_VE_MucTieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    var array = result.err.split(';');
+                    for (var iErr = 0; iErr < array.length; iErr = iErr + 2) {
+                        var code = $("#r" + array[iErr]).find("td:eq(1)").text();
+                        displayError(idCapDuyet, code, array[iErr + 1]);
+                        //if (array[iErr + 1] == "-1") MessageLoi("[" + code + "] - không có quyền trả về");
+                        //else if (array[iErr + 1] == "-2") MessageLoi("[" + code + "] - đã được duyệt cấp cao hơn");
+                        //else MessageLoi("[" + code + "] - " + array[iErr + 1]);
+                    }
+                }
+                else {
+                    MessageThanhCong("Trả về thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function KhongDuyetData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+
+        if (!confirmKhongDuyetVN()) { return; }
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "idHTMT": idHTMT,
+            "tmp": tmp,
+            "idCapDuyet": idCapDuyet
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/KHONG_DUYET_MucTieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    var array = result.err.split(';');
+                    for (var iErr = 0; iErr < array.length; iErr = iErr + 2) {
+                        var code = $("#r" + array[iErr]).find("td:eq(1)").text();
+                        displayError(idCapDuyet, code, array[iErr + 1]);
+                        //if (array[iErr + 1] == "-1") MessageLoi("[" + code + "] - không có quyền không duyệt");
+                        //else if (array[iErr + 1] == "-2") MessageLoi("[" + code + "] - đã được duyệt cấp cao hơn");
+                        //else MessageLoi("[" + code + "] - " + array[iErr + 1]);
+                    }
+                }
+                else {
+                    MessageThanhCong("Trả về thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    } 
+    function ThanhCongThemMoi() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Thêm mới thành công");
+        LoadData();
+    }
+    function ThanhCongSua() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Lưu dữ liệu thành công");
+        LoadData();
+    }
+</script>
+<script>
+    function goToPage(e) {
+        var pageIndex = parseInt($("#hidPageIndex").val());
+        var totalRow = parseInt($("#hidtotalPage").val());
+        switch (e.currentTarget.id) {
+            case 'gofirst':
+                $("#hidPageIndex").val(1);
+                break;
+            case 'goprev':
+                if (pageIndex > 1) pageIndex = pageIndex - 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'gonext':
+                if (pageIndex < totalRow) pageIndex = pageIndex + 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'golast':
+                $("#hidPageIndex").val(totalRow);
+                break;
+        }
+        LoadData();
+    }
+    function setFilter(e, suDung) {
+        $("#hidTrangThaiDuyet").val(suDung);
+        $("#hidPageIndex").val(1);
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("filter").getElementsByTagName("span");
+        for (i = 0; i < tabFilter.length; i++) {
+            tabFilter[i].className = "";
+        }
+        e.currentTarget.className = "active";
+        LoadData();
+    }
+    
+    function setFilterQuyen(e, idCapDuyet) {
+        $("#spDuyetCap").html("Duyệt cấp " + idCapDuyet);
+        $("#spHuyDuyetCap").html("Hủy duyệt cấp " + idCapDuyet);
+
+        $("#hidCapDuyet").val(idCapDuyet);
+        $("#hidPageIndex").val(1);
+
+        var IDQuyen = $("#hidQuyenDuyet" + idCapDuyet).val();
+        if (IDQuyen > 0) {
+            document.getElementById("divDuyet").style.display = "";
+        }
+        else {
+            document.getElementById("divDuyet").style.display = "none";
+        }
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("filterQuyen").getElementsByTagName("span");
+        for (i = 1; i < tabFilter.length; i++) {
+            tabFilter[i].className = "circle0";
+        }
+        e.currentTarget.className = "circle1";
+        LoadData();
+    }
+    function NapData() {
+        $("#hidPageIndex").val(1);
+        LoadData();
+    }
+    function moDong(o) {
+        var row = o.parentNode.parentNode.parentNode;
+        var idMucTieu = row.id.substr(1);
+        /*./images/arrow_right.png*/
+        o.src = "./images/arrow_down.png";
+        $(o).attr("onclick", "xoaDong(this)");
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var hidExpand = $("#hidExpand").val();
+        var idQuyen = $("#hidIDQuyen").val();
+        var idCoCau = $("#ddlChuThe").val();
+        var idCoCauBP = $("#ddlToChuc").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var idTrangThaiDuyet = $("#hidTrangThaiDuyet").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var pageIndex = $("#hidPageIndex").val();
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idLoaiTanSuat = $("#hidIDLoaiTanSuat").val();
+        var idHTTS = $("#ddlKyDanhGia").val();
+        var idNguoiPhuTrach = $("#ddlNguoiPhuTrach").val();
+        var idTrangThaiCapDuyet = $("#ddlTrangThaiCapDuyet").val();
+        var keyword = $("#txtKeyword").val();
+        var idMucUuTien = null;
+        var idVaiTro = null;
+        var idLoaiMucTieu = null;
+        var chamTienDo = null;
+        var canhBaoTienDo = null;
+        //null:tất cả - 1: Đã duyệt - 0: Chưa duyệt - 2: Trả về
+        var Params = {
+            "idHTMT": idHTMT,
+            "idCha": idMucTieu,
+            "idNhomCap": idNhomCap,
+            "idLoaiTanSuat": idLoaiTanSuat,
+            "idHTTS": idHTTS,
+            "idCoCau": idCoCau,
+            "idCoCauBP": idCoCauBP,
+            "idTrangThaiDuyet": idTrangThaiDuyet,
+            "idCapDuyet": idCapDuyet,
+            "idMucUuTien": idMucUuTien,
+            "idNguoiPhuTrach": idNguoiPhuTrach,
+            "idVaiTro": idVaiTro,
+            "idLoaiMucTieu": idLoaiMucTieu,
+            "chamTienDo": chamTienDo,
+            "canhBaoTienDo": canhBaoTienDo,
+            "keyword": keyword,
+            "idTrangThaiCapDuyet": idTrangThaiCapDuyet,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/duyet_muc_tieu_con_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                var list = result.list;
+
+                var expand = '';
+                var max = list.length;
+                var tmp = "";
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idMucTieu;
+                    if (obj.stt == 0)
+                        if (EmptyNull(obj.capBacNhom) > 1)
+                            tmp = tmp + '<tr class="BFF" id="' + rowid + '" onclick="setSelect(this);" level="' + EmptyNull(obj.capBac) + '">';
+                        else tmp = tmp + '<tr class="BF" id="' + rowid + '" onclick="setSelect(this);" level="' + EmptyNull(obj.capBac) + '">';
+                    else {
+                        tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);" level="' + EmptyNull(obj.capBac) + '">';
+                    }
+                    
+                    tmp = tmp + bindDataRow(obj, idCapDuyet, idNhomCap);
+                    tmp = tmp + '<td></td></tr>';
+                }
+                $('#progress').css({ width: 100 + '%' });
+
+                var idx = row.rowIndex;
+
+                $('#gridbody > tbody > tr').eq(idx).after(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function xoaDong(o) {
+        var row = o.parentNode.parentNode.parentNode;
+        var idMucTieu = row.id.substr(1);
+        /*./images/arrow_right.png*/
+        o.src = "./images/arrow_right.png";
+        $(o).attr("onclick", "moDong(this)");
+        var level = parseInt($(row).attr('level'));
+
+        var row_index = $(row).index('tr');
+        var rows = $("#gridbody tr");
+        for (var i = row_index + 1; i < rows.length; i++) //The json object has length
+        {
+            var level2 = parseInt($(rows[i]).attr('level'));
+            if (level < level2) $(rows[i]).remove();
+            else return;
+        }
+    }
+    function LoadData() { $("#hidIDSelected").val('');
+        clearError("ddlKyDanhGia");
+        clearError("ddlChuThe");
+        clearError("ddlNguoiPhuTrach");
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var idQuyen = $("#hidIDQuyen").val();
+        var idCoCau = $("#ddlChuThe").val();
+        var idCoCauBP = $("#ddlToChuc").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var idTrangThaiDuyet = $("#hidTrangThaiDuyet").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var pageIndex = $("#hidPageIndex").val();
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idLoaiTanSuat = $("#hidIDLoaiTanSuat").val();
+        var idHTTS = $("#ddlKyDanhGia").val();
+        var idNguoiPhuTrach = $("#ddlNguoiPhuTrach").val();
+        var idTrangThaiCapDuyet = $("#ddlTrangThaiCapDuyet").val();
+        var keyword = $("#txtKeyword").val();
+        var idMucUuTien = null;
+        var idVaiTro = null;
+        var idLoaiMucTieu = $("#ddlLoaiMucTieu").val();
+        var chamTienDo = null;
+        var canhBaoTienDo = null;
+        //null:tất cả - 1: Đã duyệt - 0: Chưa duyệt - 2: Trả về
+        var Params = {
+            "idHTMT": idHTMT,
+            "idNhomCap": idNhomCap,
+            "idLoaiTanSuat": idLoaiTanSuat,
+            "idHTTS": idHTTS,
+            "idCoCau": idCoCau,
+            "idCoCauBP": idCoCauBP,
+            "idTrangThaiDuyet": idTrangThaiDuyet,
+            "idCapDuyet": idCapDuyet,
+            "idMucUuTien": idMucUuTien,
+            "idNguoiPhuTrach": idNguoiPhuTrach,
+            "idVaiTro": idVaiTro,
+            "idLoaiMucTieu": idLoaiMucTieu,
+            "chamTienDo": chamTienDo,
+            "canhBaoTienDo": canhBaoTienDo,
+            "keyword": keyword,
+            "idTrangThaiCapDuyet": idTrangThaiCapDuyet,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/duyet_muc_tieu_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                resetTable();
+                var list = result.list;
+                var pager = result.pager;
+                //Update pager
+                var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+                var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+                var toRow = pager.pageSize * pageIndex;
+                if (toRow > pager.totalRow) toRow = pager.totalRow;
+                $("#hidtotalPage").val(totalPage);
+                $("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+                $("#currentIndex").text(pageIndex + "/" + totalPage);
+                var expand = '';
+                var max = list.length;
+                var tmp = "";
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idMucTieu;
+                    if (obj.idMucTieu <= 0)
+                        if (EmptyNull(obj.capBacNhom) > 1)
+                            tmp = tmp + '<tr class="BFF" id="' + rowid + '" level="' + EmptyNull(obj.capBac) + '">';
+                        else tmp = tmp + '<tr class="BF" id="' + rowid + '" level="' + EmptyNull(obj.capBac) + '">';
+                    else {
+                        tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);" level="' + EmptyNull(obj.capBac) + '">';
+                    }
+                    tmp = tmp + bindDataRow(obj, idCapDuyet, idNhomCap);
+                    tmp = tmp + '<td></td></tr>';
+                }
+                $('#progress').css({ width: 100 + '%' });
+                $('#chkAll').prop('checked', false);
+                $('#gridbody').append(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function bindDataRow(obj, idCapDuyet, idNhomCap) {
+        var hidExpand = $("#hidExpand").val();
+        var tmp = '';
+        if (EmptyNull(obj.coLopCon) == true)
+            if (EmptyNull(idNhomCap) == "")
+                expand = '<img class="exp" src="./images/arrow_down.png" onclick="xoaDong(this)">';
+            else expand = '<img class="exp" src="./images/arrow_right.png" onclick="moDong(this)">';
+        else expand = '';
+
+        if (obj.idMucTieu <= 0)
+            tmp = tmp + '<td class="freezy"><span class="bdr"></span></td>';
+        else {
+            if (idCapDuyet == 1) {
+                if (obj.idTrangThaiDuyet1 > 0)
+                    tmp = tmp + '<td class="colchk freezy"><span class="bleft' + obj.idTrangThaiDuyet1 + '"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+                else tmp = tmp + '<td class="colchk freezy"><span class="bleft0"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+            }
+            else if (idCapDuyet == 2) {
+                if (obj.idTrangThaiDuyet2 > 0)
+                    tmp = tmp + '<td class="colchk freezy"><span class="bleft' + obj.idTrangThaiDuyet2 + '"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+                else tmp = tmp + '<td class="colchk freezy"><span class="bleft0"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+            }
+            else if (idCapDuyet == 3) {
+                if (obj.idTrangThaiDuyet3 > 0)
+                    tmp = tmp + '<td class="colchk freezy"><span class="bleft' + obj.idTrangThaiDuyet3 + '"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+                else tmp = tmp + '<td class="colchk freezy"><span class="bleft0"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+            }
+            else tmp = tmp + '<td class="colchk freezy"><span class="bleft0"></span><input type="checkbox" onclick="BtnFire(this)"><span class="bdr"></span></td>';
+        }
+        tmp = tmp + '<td class="break freezy">' + obj.maMucTieu + '<span class="bdr"></span></td>';
+        if (obj.idMucTieu <= 0)
+            tmp = tmp + '<td class="freezy tr"><span class="bdr"></span></td>';
+        else {
+            if (obj.idTrangThaiDuyet == 0 || obj.idTrangThaiDuyet == 1)
+                tmp = tmp + '<td class="freezy padr0"><span class="circleTT">1</span><span class="ttname">Chờ duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 2)
+                tmp = tmp + '<td class="freezy padr0 red"><span class="circleTT">1</span><span class="ttname">Không duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 3)
+                tmp = tmp + '<td class="freezy padr0 purple"><span class="circleTT">1</span><span class="ttname">Trả về</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 4)
+                tmp = tmp + '<td class="freezy padr0 blue"><span class="circleTT">1</span><span class="ttname">Đã duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 5)
+                tmp = tmp + '<td class="freezy padr0 red"><span class="circleTT">2</span><span class="ttname">Không duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 6)
+                tmp = tmp + '<td class="freezy padr0 purple"><span class="circleTT">2</span><span class="ttname">Trả về</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 7)
+                tmp = tmp + '<td class="freezy padr0 blue"><span class="circleTT">2</span><span class="ttname">Đã duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 8)
+                tmp = tmp + '<td class="freezy padr0 red"><span class="circleTT">3</span><span class="ttname">Không duyệt</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 9)
+                tmp = tmp + '<td class="freezy padr0 purple"><span class="circleTT">3</span><span class="ttname">Trả về</span><span class="bdr"></span></td>';
+            else if (obj.idTrangThaiDuyet == 10)
+                tmp = tmp + '<td class="freezy padr0 blue"><span class="circleTT">3</span><span class="ttname">Đã duyệt</span><span class="bdr"></span></td>';
+            else
+                tmp = tmp + '<td class="freezy">---<span class="bdr"></span></td>';
+        }
+
+        tmp = tmp + '<td class="freezy P' + EmptyNull(obj.capBac) + '"><span>' + expand + EmptyNull(obj.tenMucTieu) + '</span><span class="bdr"></span></td>';
+        if (obj.idKieuDuLieu == 2) {
+            tmp = tmp + '<td>' + EmptyNull(obj.sSoKeHoachNgay) + '</td>';
+        }
+        else if (obj.idKieuDuLieu == 3) {
+            tmp = tmp + '<td class="tr">' + BindDecimal2(obj.soKeHoachTyLe) + '</td>';
+        }
+        else {
+            tmp = tmp + '<td class="tr">' + BindDecimalFlex(obj.soKeHoachSo) + '</td>';
+        }
+        tmp = tmp + '<td>' + EmptyNull(obj.tenDonViTinh) + '</td>';
+        tmp = tmp + '<td class="tr">' + BindDecimal2(obj.trongSo) + '</td>';
+        tmp = tmp + '<td class="tr">' + EmptyPhanTram(BindDecimal2(obj.trongSoPT)) + '</td>';
+        tmp = tmp + '<td>' + EmptyNull(obj.kyDanhGia) + '</td>';
+
+        if (obj.idCoCau == 0)
+            tmp = tmp + '<td>Cá nhân</td>';
+        else tmp = tmp + '<td>' + EmptyNull(obj.tenCoCau) + '</td>';
+        if (EmptyNull(obj.tenNguoiPhuTrach) == '')
+            tmp = tmp + '<td></td>';
+        else
+            tmp = tmp + '<td><img src="' + EmptyNull(obj.anhNhanSu) + '" class="user"><span class="uname">' + EmptyNull(obj.tenNguoiPhuTrach) + '</span></td>';
+        tmp = tmp + '<td>' + EmptyNull(obj.tenChucDanh) + '</td>';
+        tmp = tmp + '<td class="colAuto colHide' + hidExpand + '">' + EmptyNull(obj.tenCoCauPT) + '</td>';
+        tmp = tmp + '<td>' + EmptyNull(obj.sKyHan) + '</td>';
+
+        if (idCapDuyet == 1 && obj.idMucTieu > 0 && (obj.idTrangThaiDuyet == 0 || obj.idTrangThaiDuyet == 1))
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '"><textarea name="phanHoi1" onchange="_phanhoi(' + obj.idMucTieu + ',1)">' + EmptyNull(obj.phanHoi1) + '</textarea></td>';
+        else tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '">' + EmptyNull(obj.phanHoi1) + '</td>';
+        if (obj.idTrangThaiDuyet1 == 1 || obj.idTrangThaiDuyet2 == 1 || obj.idTrangThaiDuyet3 == 1) {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet1">' + EmptyNull(obj.sNgayDuyet1) + '</td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet1">' + EmptyNull(obj.tenNguoiDuyet1) + '</td>';
+        }
+        else {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet1"></td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet1"></td>';
+        }
+        if (idCapDuyet == 2 && obj.idMucTieu > 0 && (obj.idTrangThaiDuyet == 0 || obj.idTrangThaiDuyet == 1 || obj.idTrangThaiDuyet == 4))
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '"><textarea name="phanHoi2" onchange="_phanhoi(' + obj.idMucTieu + ',2)">' + EmptyNull(obj.phanHoi2) + '</textarea></td>';
+        else tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '">' + EmptyNull(obj.phanHoi2) + '</td>';
+        if (obj.idTrangThaiDuyet2 == 1) {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet2">' + EmptyNull(obj.sNgayDuyet2) + '</td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet2">' + EmptyNull(obj.tenNguoiDuyet2) + '</td>';
+        }
+        else {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet2"></td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet2"></td>';
+        }
+        if (idCapDuyet == 3 && obj.idMucTieu > 0 && (obj.idTrangThaiDuyet == 0 || obj.idTrangThaiDuyet == 1 || obj.idTrangThaiDuyet == 4 || obj.idTrangThaiDuyet == 7))
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '"><textarea name="phanHoi3" onchange="_phanhoi(' + obj.idMucTieu + ',3)">' + EmptyNull(obj.phanHoi3) + '</textarea></td>';
+        else tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '">' + EmptyNull(obj.phanHoi3) + '</td>';
+        if (obj.idTrangThaiDuyet3 == 1) {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet3">' + EmptyNull(obj.sNgayDuyet3) + '</td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet3">' + EmptyNull(obj.tenNguoiDuyet3) + '</td>';
+        }
+        else {
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="ngayDuyet3"></td>';
+            tmp = tmp + '<td class="ttd colAuto colHide' + hidExpand + '" name="nguoiDuyet3"></td>';
+        }
+        return tmp;
+    }
+    function _phanhoi(idMucTieu, idx) {
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var row = $("#r" + idMucTieu);
+        var phanHoi = '';
+        if (idx == 1) {
+            phanHoi = row.find("[name='phanHoi1']").val();
+        }
+        else if (idx == 2) {
+            phanHoi = row.find("[name='phanHoi2']").val();
+        }
+        else {
+            phanHoi = row.find("[name='phanHoi3']").val();
+        }
+        var Params = {
+            "idMucTieu": idMucTieu,
+            "phanHoi": phanHoi,
+            "idCapDuyet": idCapDuyet
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/LUU_PhanHoi_duyet_muc_tieuJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.error.length > 0) {
+                    MessageLoi(result.error);
+                }
+                else {
+                    //row.find("[name='ngayDuyet" + idx + "']").html(result.sLastUpdateDate);
+                    //row.find("[name='nguoiDuyet" + idx + "']").html(result.maNhanSu + ' - ' + result.tenNhanSu);
+                    MessageThanhCong("Lưu phản hồi thành công");
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    
+    $(document).ready(function () {
+        LoadData();
+    });
+
+</script>
+<script>
+    function TinhTrongSo() {
+        $("#hidIDSelected").val('');
+        clearError("ddlKyDanhGia");
+        clearError("ddlChuThe");
+        clearError("ddlNguoiPhuTrach");
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var hidExpand = $("#hidExpand").val();
+        var idQuyen = $("#hidIDQuyen").val();
+        var idCoCau = $("#ddlChuThe").val();
+        var idCoCauBP = $("#ddlToChuc").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var idTrangThaiDuyet = $("#hidTrangThaiDuyet").val();
+        var idCapDuyet = $("#hidCapDuyet").val();
+        var pageIndex = $("#hidPageIndex").val();
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var idLoaiTanSuat = $("#hidIDLoaiTanSuat").val();
+        var idHTTS = $("#ddlKyDanhGia").val();
+        var idNguoiPhuTrach = $("#ddlNguoiPhuTrach").val();
+        var idTrangThaiCapDuyet = $("#ddlTrangThaiCapDuyet").val();
+        var keyword = $("#txtKeyword").val();
+        var idMucUuTien = null;
+        var idVaiTro = null;
+        var idLoaiMucTieu = $("#ddlLoaiMucTieu").val();
+        var chamTienDo = null;
+        var canhBaoTienDo = null;
+        //null:tất cả - 1: Đã duyệt - 0: Chưa duyệt - 2: Trả về
+
+        var err = "";
+        if (EmptyNull(idHTTS) == "") {
+            setError("ddlKyDanhGia");
+            $('#progress').css({ width: 100 + '%' });
+            endProgress();
+            MessageLoi("Phải chọn kỳ đánh giá");
+            err = "1";
+        }
+        if (EmptyNull(idCoCau) == "" && EmptyNull(idNguoiPhuTrach) == "") {
+            setError("ddlChuThe");
+            setError("ddlNguoiPhuTrach");
+            $('#progress').css({ width: 100 + '%' });
+            endProgress();
+            MessageLoi("Phải chọn [Chủ thể chỉ tiêu] hoặc [Người phụ trách]");
+            err = "1";
+        }
+        if (err != "") return;
+
+        //null:tất cả - 1: Đã duyệt - 0: Chưa duyệt - 2: Trả về
+        var Params = {
+            "idHTMT": idHTMT,
+            "idNhomCap": idNhomCap,
+            "idLoaiTanSuat": idLoaiTanSuat,
+            "idHTTS": idHTTS,
+            "idCoCau": idCoCau,
+            "idCoCauBP": idCoCauBP,
+            "idTrangThaiDuyet": idTrangThaiDuyet,
+            "idCapDuyet": idCapDuyet,
+            "idMucUuTien": idMucUuTien,
+            "idNguoiPhuTrach": idNguoiPhuTrach,
+            "idVaiTro": idVaiTro,
+            "idLoaiMucTieu": idLoaiMucTieu,
+            "chamTienDo": chamTienDo,
+            "canhBaoTienDo": canhBaoTienDo,
+            "keyword": keyword,
+            "idTrangThaiCapDuyet": idTrangThaiCapDuyet,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/tinh_trong_so_duyet_muc_tieu_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                resetTable();
+                var list = result.list;
+                var pager = result.pager;
+                //Update pager
+                var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+                var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+                var toRow = pager.pageSize * pageIndex;
+                if (toRow > pager.totalRow) toRow = pager.totalRow;
+                $("#hidtotalPage").val(totalPage);
+                $("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+                $("#currentIndex").text(pageIndex + "/" + totalPage);
+                var expand = '';
+                var max = list.length;
+                var tmp = "";
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idMucTieu;
+                    if (obj.idMucTieu <= 0)
+                        if (EmptyNull(obj.capBacNhom) > 1)
+                            tmp = tmp + '<tr class="BFF" id="' + rowid + '">';
+                        else tmp = tmp + '<tr class="BF" id="' + rowid + '">';
+                    else {
+                        tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+                    }
+
+                    tmp = tmp + bindDataRow(obj, idCapDuyet, idNhomCap);
+                    tmp = tmp + '<td></td></tr>';
+                }
+                $('#progress').css({ width: 100 + '%' });
+                $('#chkAll').prop('checked', false);
+                $('#gridbody').append(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+</script>

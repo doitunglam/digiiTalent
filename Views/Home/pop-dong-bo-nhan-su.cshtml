@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "";
+    var user = (DefaultUser)ViewData["dUser"];
+    int QuyenDongBo = Helper.NullToZero(ViewData["QuyenDongBo"]);
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<div class="Content">
+    <input type="hidden" id="hidIDNhanSu" value="@user.UserID" />
+    @{ if (user.UserID == 0)
+        {
+            <div style="width:1px;height:1px;position:absolute;bottom:1px;overflow:hidden;">
+                <input type="text" id="Username" style="" />
+                <input type="password" id="Password" style="" />
+            </div>
+        } }
+    <div class="tableInput">
+        <table class="tblMaster">
+            @{ if (user.UserID == 0)
+                {
+                    <tr>
+                        <th>Tài khoản <b class="required">※</b></th>
+                        <td><input type="text" id="DBUsername" autocomplete="off" style="width:220px"></td>
+                    </tr>
+                    <tr>
+                        <th>Mật khẩu <b class="required">※</b></th>
+                        <td><input type="password" id="DBPassword" autocomplete="off" style="width:220px"></td>
+                    </tr>
+                } }
+            <tr>
+                <th>Ngày đồng bộ cuối <b class="required">※</b></th>
+                <td><input type="text" id="DBLastUpdatedDate" autocomplete="off" style="width:220px" value="@ViewData["lastUpdatedDate"]"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+        @{if (QuyenDongBo > 0) { <span class="btn hl" onclick="SaveData();">Đồng bộ</span>} }
+        <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+        <div class="clr"></div>
+    </div>
+    <div class="slider" id="slider" style="display:none;">
+        <div class="line"></div>
+        <div class="subline inc"></div>
+        <div class="subline dec"></div>
+    </div>
+</div>
+<div class="clr"></div>
+<script>
+    function SaveData() {
+        var _idNhanSu = $("#hidIDNhanSu").val();
+        if (_idNhanSu == 0) {
+            var iError = 0;
+            iError = iError + validateNull("DBUsername");
+            iError = iError + validateNull("DBPassword");
+            if (iError > 0) {
+                MessageLoi("Phải nhập các thông tin bắt buộc");
+                return;
+            }
+        }
+        document.getElementById("slider").style.display = "block";
+
+        var _username = $("#DBUsername").val();
+        var _password = $("#DBPassword").val();
+        var _lastUpdatedDate = $("#DBLastUpdatedDate").val();
+
+        //Insert data
+        var obj = {
+            username: _username,
+            password: _password,
+            lastUpdatedDate: _lastUpdatedDate
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/DongBoNhanSuJson',
+            context: document.body,
+            data: obj,
+            success: function (result) {
+                document.getElementById("slider").style.display = "none";
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    var path = result.path;
+                    if (path.length > 0) {
+                        window.location.href = "@Url.RouteUrl(new { Controller = "Home", Action = "DownloadFile" })/?file=" + path;
+                    }
+                    else parent.ThanhCongDongBo();
+                }
+            },
+            error: function (err) {
+                document.getElementById("slider").style.display = "none";
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+</script>
+<script>
+    function LoadData() {
+        //var objData = @Html.Raw(Json.Serialize(ViewData["objData"]));
+        //var obj = objData.value.data;
+        //$("#hidID").val(obj.idNhomMucTieu);
+        //$("#txtMaNhomMucTieu").val(obj.maNhomMucTieu);
+        //$("#txtTenNhomMucTieu").val(obj.tenNhomMucTieu);
+        //$("#ddlLoaiMucTieu").val(obj.idLoaiMucTieu).trigger('change');
+    }
+    LoadData();
+</script>

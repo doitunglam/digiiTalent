@@ -1,0 +1,9 @@
+﻿@{
+    string controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+    string actionName = ViewContext.RouteData.Values["Action"].ToString().ToLower();
+    if (actionName=="login")
+        Layout = "_login";
+    else if (actionName.StartsWith("pop"))
+        Layout = "_pop";
+    else Layout = "_Layout";
+}

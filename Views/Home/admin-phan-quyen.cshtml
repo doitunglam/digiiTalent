@@ -1,0 +1,1031 @@
+﻿@{
+	ViewBag.Title = ViewData["PageTitle"];
+	int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+	int QuyenXoa = Helper.NullToZero(ViewData["QuyenXoa"]);
+	int QuyenDongBo = Helper.NullToZero(ViewData["QuyenDongBo"]);
+}
+
+<!-- Fontawesome -->
+
+
+<body style="overflow:auto">
+	<link rel="stylesheet" href="~/css/phan_quyen.css" type="text/css">
+
+	<div class="main" style="padding-right: 30px; padding-left: 25px;">
+		<!-- <div class="nav_bar">
+			<div class="menu">
+				<button><b>Phân Quyền</b></button>
+				<button>Tất cả</button>
+				<button>Đang sử dụng</button>
+				<button>Không sử dụng</button>
+			</div>
+			<div class="user">
+				<i class="fa-solid fa-bell"></i>
+				<div class="name_user">
+					<p class="email_user"><a href="#">Admin@gmail.com</a></p>
+					<p class="role_user">admin</p>
+				</div>
+			</div>
+		</div> -->
+		<div class="table">
+			<div class="main_table">
+				<div class="main_popup">
+					<div class="search0">
+						<select id="ddlNhomQuyen" style="width:250px">
+							<option></option>
+						</select>
+						<script>
+
+							var ddlNhomChucNangData = @Html.Raw(Json.Serialize(ViewData["ddlNhomQuyen"]));
+
+
+							$("#ddlNhomQuyen").select2({
+								placeholder: "Chọn đơn vị",
+								data: ddlNhomChucNangData.value,
+								dropdownAutoWidth: true,
+								allowClear: true
+							});
+						</script>
+					</div>
+					<div style="clear: both;" class="clr"></div>
+					<div class="table_chuc_nang" style="margin:10px 0px 0px 0px">
+						<div class="table_left">
+							<table border="1">
+								<p><b>Nhóm Quyền</b></p>
+								<tbody>
+									<tr>
+										<td><button>Admin</button></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div>
+							<table class="table-right" id="your_table_id" style="fist">
+								<p><b>Danh sách quyền</b></p>
+								<thead>
+									<tr>
+										<th>Tên chức năng</th>
+										<th>Chặn dùng</th>
+										<th>Cá nhân</th>
+										<th>Đơn vị</th>
+										<th>Toàn quyền</th>
+									</tr>
+								</thead>
+							</table>
+								
+
+						</div>
+						<link href="~/css/jquery.treetable.css" rel="stylesheet" type="text/css" />
+						<script src="~/js/jquery.treetable.js"></script>
+						<script src="~/js/jquery-ui.min.js"></script>
+
+						<script>
+
+							var formGroupArray = @Html.Raw(ViewData["PhanQuyenJson"]);
+							formGroupArray = JSON.stringify(formGroupArray);
+							formGroupArray = JSON.parse(formGroupArray);
+							//function recursiveShowFunct(item) {
+							//	var tabHead = "";
+							//	for (var i = 1; i < item.layer; i++)
+							//		tabHead = tabHead + "\t";
+							//	console.log(tabHead + item.name);
+							//	if (item.childs != null)
+							//		item.childs.forEach(recursiveShowFunct);
+
+							//}
+							//formGroupArray.forEach(recursiveShowFunct);
+
+							var tmp = "";
+							for (var i = 0; i < formGroupArray.length; i++) {
+								tmp = tmp + "<tr  data-tt-id=\"" + 1 + "." + i + "\">";
+								tmp = tmp + "<td class=\"firstCol\">" + formGroupArray[i].name + "</td>";
+								tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+								tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+								tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+								tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+								tmp = tmp + "<tr>";
+								var formArray = formGroupArray[i].childs;
+								if (formArray != null) {
+									for (var j = 0; j < formArray.length; j++) {
+
+										tmp = tmp + "<tr  data-tt-id=\"" + 2 + "." + i + "." + j + "\" data-tt-parent-id=\"" + 1 + "." + i + "\">";
+										tmp = tmp + "<td class=\"firstCol\">" + formArray[j].name + "</td>";
+										tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+										tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+										tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>"; 
+										tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+										tmp = tmp +"<tr>";
+
+
+										var actionArray = formArray[j].childs;
+										if (actionArray != null)
+											for (var k = 0; k < actionArray.length; k++) {
+												tmp = tmp + "<tr data-tt-id=\"" + 3 + "." + i + "." + j + "." + k + "\" data-tt-parent-id=\"" + 2 + "." + i + "." + j + "\">";
+												tmp = tmp + "<td class=\"firstCol\">" + actionArray[k].name + "</td>";
+												tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+												tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+												tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+												tmp = tmp + "<td><input type=\"radio\" name = \"check_radio\" > </td>";
+												tmp = tmp + "<tr>";
+											}
+									}
+
+								}
+							}
+
+							$("#your_table_id").append(tmp);
+							$(".table-right").treetable({ expandable: true });
+						</script>
+
+
+						@*<tbody class="hide">
+						<tr class="level2">
+						<td>
+						<label for="sub1">1.1</label>
+						<input type="checkbox" id="sub1" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="sub1">  100  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+						</tr>
+
+						<tr class="hide">
+						<td>1.1.1</td>
+						<td>300</td>
+						</tr>
+
+						<tr class="level2">
+						<td>
+						<label for="sub2">1.2</label>
+						<input type="checkbox" id="sub2" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="sub2">  100  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+						<tr class="hide">
+						<td> 1.2.1 </td>
+						<td>30hhh0</td>
+						</tr>
+
+						<tr class="level2">
+						<td>
+						<label for="sub3">1.3</label>
+						<input type="checkbox" id="sub3" data-toggle="toggle" style="display:none">
+						</td>
+
+						<td>
+						<label for="sub3">  500 </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+
+						<tr class="hide">
+						<td> 1.3.1 </td>
+						<td>jjjj</td>
+						</tr>
+
+						</tbody>
+
+						<tbody class="level1">
+						<tr>
+						<td colspan="2">
+						<label for="parents2" class="heading">2</label>
+						<input type="checkbox" id="parents2" data-toggle="toggle">
+						</td>
+						</tr>
+						</tbody>
+
+						<!-- 2.1 -->
+
+
+						<tbody class="hide">
+
+						<tr class="level2">
+						<td>
+						<label for="Sub1">2.1</label>
+						<input type="checkbox" id="Sub1" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="Sub1">2.1</label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+
+						<tr class="hide">
+						<td>2.1.1</td>
+						<td>300</td>
+						</tr>
+
+						<!-- 2.2 -->
+
+
+						<tr class="level2">
+						<td>
+						<label for="Sub2">  2.2  </label>
+						<input type="checkbox" id="Sub2" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="Sub2">  2.2  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+						</tr>
+
+
+						<tr class="hide">
+						<td> 2.2.1 </td>
+						<td>678</td>
+						</tr>
+
+
+						<!--  -->
+
+
+						</tbody>
+						</tbody>*@
+
+						<script>
+
+							var formGroupArray = @Html.Raw(ViewData["PhanQuyenJson"]);
+							formGroupArray = JSON.stringify(formGroupArray);
+							formGroupArray = JSON.parse(formGroupArray);
+							function recursiveShowFunct(item) {
+								var tabHead = "";
+								for (var i = 1; i < item.layer; i++)
+									tabHead = tabHead + "\t";
+								console.log(tabHead + item.name);
+								if (item.childs != null)
+									item.childs.forEach(recursiveShowFunct);
+
+							}
+							formGroupArray.forEach(recursiveShowFunct);
+
+							var tmp = "";
+							for (var i = 0; i < formGroupArray.length; i++) {
+								tmp = tmp + "<tbody class=\"level1\">";
+								tmp = tmp + "<tr><td>";
+								tmp = tmp + "<label for= \"parents" + i + "\" class= \"heading\">" + formGroupArray[i].name + "</label>";
+								tmp = tmp + "<input type=\"checkbox\" id=\"parents" + i + "\" data-toggle=\"toggle\">";
+								tmp = tmp + "</td></tr></tbody>";
+								var formArray = formGroupArray[i].childs;
+								if (formArray != null) {
+									tmp = tmp + "<tbody class=\"hide\">";
+									for (var j = 0; j < formArray.length; j++) {
+
+										tmp = tmp + "<tr class=\"level2\">";
+										tmp = tmp + "<td>";
+										tmp = tmp + "<label for=\"sub" + j + "\">" + formArray[j].name + "</label>";
+										tmp = tmp + "<input type=\"checkbox\" id=\"sub" + j + "\" data-toggle=\"toggle\">";
+										tmp = tmp + "</td></tr>";
+
+										//layer 3 howw
+										var actionArray = formArray[j].childs;
+										if (actionArray != null)
+											for (var k = 0; k < actionArray.length; k++) {
+												tmp = tmp + "<tr class=\"level3\">";
+												tmp = tmp + "<td>";
+												tmp = tmp + "<label for=\"sub" + k + "\">" + actionArray[k].name + "</label>";
+												tmp = tmp + "<input type=\"checkbox\" id=\"sub" + j + "\" data-toggle=\"toggle\">";
+												tmp = tmp + "</td></tr>";
+
+											}
+
+									}
+									//tmp = tmp + "</tbody>";
+								}
+							}
+
+							//	//layer 1
+							//	tmp = tmp + "<tbody class=\"level1\">";
+							//tmp = tmp + "<tr><td>";
+							//tmp = tmp + "<label for= \"parents\" class= \"heading\"> 1 </label>";
+							//tmp = tmp + "<input type=\"checkbox\" id=\"parents\" data-toggle=\"toggle\">";
+							//tmp = tmp + "</td></tr></tbody>";
+
+							////layer 2
+
+							//tmp = tmp + "<tbody class=\"hide\">";
+							//tmp = tmp + "<tr class=\"level2\">";
+							//tmp = tmp + "<td>";
+							//tmp = tmp + "<label for=\"sub1\"> 1.1 </label>";
+							//tmp = tmp + "<input type=\"checkbox\" id=\"sub1\" data-toggle=\"toggle\">";
+							//tmp = tmp + "</td></tr>";
+							//tmp = tmp + "</tbody>";
+
+							////layer 1
+							//tmp = tmp + "<tbody class=\"level1\">";
+							//tmp = tmp + "<tr><td>";
+							//tmp = tmp + "<label for= \"parents2\" class= \"heading\"> 2 </label>";
+							//tmp = tmp + "<input type=\"checkbox\" id=\"parents2\" data-toggle=\"toggle\">";
+							//tmp = tmp + "</td></tr></tbody>";
+
+							////layer 2
+
+							//tmp = tmp + "<tbody class=\"hide\">";
+							//tmp = tmp + "<tr class=\"level2\">";
+							//tmp = tmp + "<td>";
+							//tmp = tmp + "<label for=\"sub1\"> 2.1 </label>";
+							//tmp = tmp + "<input type=\"checkbox\" id=\"sub1\" data-toggle=\"toggle\">";
+							//tmp = tmp + "</td></tr>";
+							//tmp = tmp + "</tbody>";
+
+
+							$(".table_right").append(tmp);
+
+							$(document).ready(function () {
+								$('.hide').hide();
+								$('[data-toggle="toggle"]').change(function () {
+									$(this).parents().next('.hide').toggle();
+								});
+
+							});
+
+							$(document).ready(function () {
+
+								//add a class to track expanded / collapsed (for CSS styling)
+								$('.heading').addClass('hCollapsed');
+
+
+								$(".heading").click(function () {
+									//#heading is a cell, so go up to the parent, which is the first tr.  Toggle the hide/show status of those rows.
+									//$(this).parent().siblings().toggle();
+									//then adjust the classes accordingly (for CSS styling)
+									if ($(this).hasClass('hCollapsed')) {
+										$(this).removeClass('hCollapsed').addClass('hExpanded');
+									} else {
+										$(this).removeClass('hExpanded').addClass('hCollapsed');
+									}
+
+								});
+							});
+
+						</script>
+						@*<table>
+						<thead>
+						<tr>
+						<th><p><b>Name</b></p></th>
+						<th><p>Number</p></th>
+						</tr>
+						</thead>
+						<tbody>
+						<tbody class="level1">
+						<tr>
+						<td>
+						<label for="parents" class="heading"> 1 </label>
+						<input type="checkbox" id="parents" data-toggle="toggle">
+						</td>
+						<td>
+						<label for="sub1">  100  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+						</tr>
+						</tbody>
+						<tbody class="hide">
+						<tr class="level2">
+						<td>
+						<label for="sub1">1.1</label>
+						<input type="checkbox" id="sub1" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="sub1">  100  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+						</tr>
+
+						<tr class="hide">
+						<td>1.1.1</td>
+						<td>300</td>
+						</tr>
+
+						<tr class="level2">
+						<td>
+						<label for="sub2">1.2</label>
+						<input type="checkbox" id="sub2" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="sub2">  100  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+						<tr class="hide">
+						<td> 1.2.1 </td>
+						<td>30hhh0</td>
+						</tr>
+
+						<tr class="level2">
+						<td>
+						<label for="sub3">1.3</label>
+						<input type="checkbox" id="sub3" data-toggle="toggle" style="display:none">
+						</td>
+
+						<td>
+						<label for="sub3">  500 </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+
+						<tr class="hide">
+						<td> 1.3.1 </td>
+						<td>jjjj</td>
+						</tr>
+
+						</tbody>
+
+						<tbody class="level1">
+						<tr>
+						<td colspan="2">
+						<label for="parents2" class="heading">2</label>
+						<input type="checkbox" id="parents2" data-toggle="toggle">
+						</td>
+						</tr>
+						</tbody>
+
+						<!-- 2.1 -->
+
+
+						<tbody class="hide">
+
+						<tr class="level2">
+						<td>
+						<label for="Sub1">2.1</label>
+						<input type="checkbox" id="Sub1" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="Sub1">2.1</label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+
+						</tr>
+
+
+						<tr class="hide">
+						<td>2.1.1</td>
+						<td>300</td>
+						</tr>
+
+						<!-- 2.2 -->
+
+
+						<tr class="level2">
+						<td>
+						<label for="Sub2">  2.2  </label>
+						<input type="checkbox" id="Sub2" data-toggle="toggle">
+						</td>
+
+						<td>
+						<label for="Sub2">  2.2  </label>
+						<input type="checkbox" data-toggle="toggle">
+						</td>
+						</tr>
+
+
+						<tr class="hide">
+						<td> 2.2.1 </td>
+						<td>678</td>
+						</tr>
+
+
+						<!--  -->
+
+
+						</tbody>
+						</table>*@
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+	<!-- Phần này mình viết luôn Script vào cho gọn -->
+	<script>
+		// Lấy các checkbox
+		const check_all = document.querySelector('.checkbox_all');
+		const check_item = document.querySelectorAll('.check_item');
+
+		// Lấy button thêm, sửa và xóa
+		const btn_add = document.querySelector(".btn_add");
+		const btn_edit = document.querySelector(".btn_edit");
+		const btn_remove = document.querySelector(".btn_remove");
+		const btn_ma_phan_quyen = document.querySelectorAll(".ma_phan_quyen");
+		const btn_click_phan_quyen = document.querySelectorAll(".click_phan_quyen");
+		const btn_phan_quyen = document.querySelector(".phan_quyen");
+		const btn_nhan_su = document.querySelector(".btn_nhan_su");
+
+
+
+		// Lấy popup với bbg_color
+		const popup_phan_quyen = document.querySelector(".popup_phan_quyen");
+		const bg_color = document.querySelector(".bg_color");
+		const popup_edit = document.querySelector(".popup_edit");
+		const popup_add = document.querySelector(".popup_add");
+
+
+
+		// Scipt ẩn hiện popup
+		popup_edit.style = "display:none;";
+		popup_add.style = "display:none;";
+		bg_color.style = "display:none;";
+
+
+
+		// Cheack all item
+		check_all.onclick = () => {
+			if (check_all.checked) {
+				check_item.forEach(item => {
+					item.checked = true;
+				});
+			} else {
+				check_item.forEach(item => {
+					item.checked = false;
+				});
+			}
+		}
+
+		// btn_add
+		btn_add.onclick = () => {
+			popup_phan_quyen.style = "display:none;";
+			popup_edit.style = "display:none;";
+			popup_add.style = "display:block;";
+			bg_color.style = "display:block;";
+
+			const btn_hidden_popup = document.querySelectorAll(".btn_hidden_popup");
+			btn_hidden_popup.forEach(item => {
+				item.onclick = () => {
+					popup_phan_quyen.style = "display:none;";
+					popup_edit.style = "display:none;";
+					popup_add.style = "display:none;";
+					bg_color.style = "display:none;";
+				}
+			})
+
+
+		}
+
+
+		// btn_edit
+		btn_edit.onclick = () => {
+			popup_phan_quyen.style = "display:none;";
+			popup_edit.style = "display:block;";
+			popup_add.style = "display:none;";
+			bg_color.style = "display:block;";
+
+			const btn_hidden_popup = document.querySelectorAll(".btn_hidden_popup");
+			btn_hidden_popup.forEach(item => {
+				item.onclick = () => {
+					popup_phan_quyen.style = "display:none;";
+					popup_edit.style = "display:none;";
+					popup_add.style = "display:none;";
+					bg_color.style = "display:none;";
+				}
+			})
+
+
+		}
+
+		// Ẩn hiện sửa xóa
+		const list_input_checkbox = document.querySelectorAll('.checkbox');
+
+		btn_edit.disabled = true;
+		btn_remove.disabled = true;
+		btn_phan_quyen.disabled = true;
+		btn_nhan_su.disabled = true;
+
+		list_input_checkbox.forEach(item => {
+			item.onchange = () => {
+				const count_checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+
+				btn_edit.disabled = true;
+				btn_remove.disabled = true;
+				btn_phan_quyen.disabled = true;
+				btn_nhan_su.disabled = true;
+
+				if (count_checked != 0) {
+
+					btn_edit.disabled = true;
+					btn_remove.disabled = false;
+					btn_phan_quyen.disabled = true;
+					btn_nhan_su.disabled = true;
+
+				}
+			}
+		});
+
+
+		btn_click_phan_quyen.forEach(item => {
+			item.onclick = () => {
+
+				btn_edit.disabled = false;
+				btn_remove.disabled = true;
+				btn_phan_quyen.disabled = false;
+				btn_nhan_su.disabled = false;
+
+			}
+		});
+
+		btn_phan_quyen.onclick = () => {
+			popup_phan_quyen.style = "display:block;";
+			bg_color.style = "display:block;";
+
+			// Lấy button dấu x để ẩn popup
+			const btn_hidden_popup = document.querySelectorAll(".btn_hidden_popup");
+
+			btn_hidden_popup.forEach(item => {
+				item.onclick = () => {
+					popup_phan_quyen.style = "display:none;";
+					bg_color.style = "display:none;";
+				}
+			});
+		}
+
+
+
+		// Thông báo lỗi hoặc thành công khi ấn lưu
+	</script>
+</body>
+
+<!-- Fontawesome
+<div class="table">
+	<div class="navbar_table">
+		<div class="menu_table">
+			<button class="btn_add">
+				<i class="fa-solid fa-plus"></i>
+				Thêm
+			</button>
+			<button class="btn_edit">
+				<i class="fa-solid fa-pen-to-square"></i>
+				Sửa
+			</button>
+			<button class="btn_remove">
+				<i class="fa-solid fa-trash"></i>
+				Xóa
+			</button>
+			<button class="phan_quyen">
+				<i class="fa-solid fa-lock"></i>
+				Phân Quyền
+			</button>
+			<button class="btn_nhan_su">
+				<i class="fa-solid fa-user"></i>
+				Nhân Sự
+			</button>
+		</div>
+		<div class="action_table">
+			<button>
+				<i class="fa-regular fa-circle-dot"></i>
+				Nạp
+			</button>
+		</div>
+	</div>
+</div>
+<div class="split splitfull">
+	<div class="tbl" role="region" aria-labelledby="HeadersCol" tabindex="0">
+		<table width="100%" id="gridbody">
+			<tr class="rhead">
+				<th class="colchk"><input type="checkbox" id="chkAll" onclick="setCheckAll(this);" /><span class="bdb"></span></th>
+				<th width="150">Mã đơn vị<span class="bdb"></span></th>
+				<th width="350">Tên đơn vị<span class="bdb"></span></th>
+				<th width="150">Tên rút gọn<span class="bdb"></span></th>
+				<th width="60">Thứ tự<span class="bdb"></span></th>
+				<th width="60">Sử dụng<span class="bdb"></span></th>
+				<th width="130">Cấp<span class="bdb"></span></th>
+				<th>Mô tả<span class="bdb"></span></th>
+			</tr>
+			<tr>
+				<td class="colchk"><input type="checkbox" /></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</div>-->
+<script>
+	function openPopupSua(title) {
+		var id = $("#hidIDSelected").val();
+		if (id == 0 || id == null) { return; }
+		if (id.length > 0) id = id.substr(1);
+		openPopup(title, id);
+	}
+	function openPopup(title, id) {
+		id = EmptyNull(id);
+		new top.PopLayer({
+			"title": title,
+			"url": "pop-co-cau-to-chuc/" + id,
+			"width": 645,
+			"height": 380,
+			"isModal": true,
+			"moveable": false,
+			"isFullScreen": false
+		});
+	}
+	function XoaData() {
+		var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+		var max = chks.length;
+		if (max < 1) { return; }
+		if (!confirmDeleteVN()) { return; }
+		var idQuyen = $("#hidIDQuyen").val();
+		var tmp = "";
+		for (var i = 0; i < max; i++) {
+			var row = chks[i].parentNode.parentNode;
+			var id = row.id;
+			var idMucTieu = id.substr(1);
+			tmp = tmp + idMucTieu + ";";
+		}
+		var Params = {
+			"tmp": tmp,
+			"idQuyen": idQuyen
+		};
+
+		$.ajax({
+			type: "POST",
+			traditional: true,
+			//async: false,
+			cache: false,
+			url: '/XOA_CoCauToChucJson',
+			context: document.body,
+			data: Params,
+			success: function (result) {
+				if (result.err.length > 0) {
+					MessageLoi(result.err);
+				}
+				else {
+					MessageThanhCong("Xóa dữ liệu thành công");
+					LoadData();
+				}
+			},
+			error: function (err) {
+				if (err.responseText != "")
+					event.preventDefault();
+			}
+		});
+	}
+	function ThanhCongThemMoi() {
+		document.getElementById('myPop-close').click();
+		MessageThanhCong("Thêm mới thành công");
+		LoadData();
+	}
+	function ThanhCongSua() {
+		document.getElementById('myPop-close').click();
+		MessageThanhCong("Lưu dữ liệu thành công");
+		LoadData();
+	}
+</script>
+<script>
+	function goToPage(e) {
+		var pageIndex = parseInt($("#hidPageIndex").val());
+		var totalRow = parseInt($("#hidtotalPage").val());
+		switch (e.currentTarget.id) {
+			case 'gofirst':
+				$("#hidPageIndex").val(1);
+				break;
+			case 'goprev':
+				if (pageIndex > 1) pageIndex = pageIndex - 1;
+				$("#hidPageIndex").val(pageIndex);
+				break;
+			case 'gonext':
+				if (pageIndex < totalRow) pageIndex = pageIndex + 1;
+				$("#hidPageIndex").val(pageIndex);
+				break;
+			case 'golast':
+				$("#hidPageIndex").val(totalRow);
+				break;
+		}
+		LoadData();
+	}
+	function setFilter(e, suDung) {
+		$("#hidSuDung").val(suDung);
+		$("#hidPageIndex").val(1);
+
+		var i, tabFilter;
+		tabFilter = document.getElementById("filter").getElementsByTagName("span");
+		for (i = 0; i < tabFilter.length; i++) {
+			tabFilter[i].className = "";
+		}
+		e.currentTarget.className = "active";
+		LoadData();
+	}
+	function NapData() {
+		$("#hidPageIndex").val(1);
+		LoadData();
+	}
+	function LoadData() {
+		$("#hidIDSelected").val('');
+		beginProgress();
+		var error = $("#error");
+		error.css("display", "none");
+		var idQuyen = $("#hidIDQuyen").val();
+		var idCocau = $("#ddlToChuc").val();
+		var idNhomCap = $("#ddlNhomCap").val();
+		var suDung = $("#hidSuDung").val();
+		var pageIndex = $("#hidPageIndex").val();
+		var keyword = $("#txtKeyword").val();
+		//null:tất cả - 1: Đang sử dung - 0:không sử dụng
+		var Params = {
+			"idNhomCap": idNhomCap,
+			"idCocau": idCocau,
+			"suDung": suDung,
+			"keyword": keyword,
+			"pageIndex": pageIndex,
+			"idQuyen": idQuyen
+		};
+		$.ajax({
+			type: "GET",
+			traditional: true,
+			async: true,
+			cache: false,
+			url: '/co_cau_to_chuc_json',
+			context: document.body,
+			data: Params,
+			success: function (result) {
+				if (result.err.length > 0) {
+					error.text(result.err);
+					error.css("display", "inline");
+				}
+				resetTable();
+				var list = result.list;
+				var pager = result.pager;
+				//Update pager
+				var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+				var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+				var toRow = pager.pageSize * pageIndex;
+				if (toRow > pager.totalRow) toRow = pager.totalRow;
+				$("#hidtotalPage").val(totalPage);
+				$("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+				$("#currentIndex").text(pageIndex + "/" + totalPage);
+
+				var max = list.length;
+				var tmp = "";
+				for (var i = 0; i < max; i++) {
+					var obj = list[i];
+					var rowid = "r" + obj.idCoCau;
+					var bsuDung = true;
+					if (suDung == 0) { bsuDung = false; }
+					if (suDung == null || suDung == '' || obj.suDung == bsuDung) {
+						tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+						tmp = tmp + '<td class="colchk"><span class="bleft"></span><input type="checkbox" onclick="BtnFire(this)"></td>';
+						tmp = tmp + '<td class="break P' + EmptyNull(obj.capBac) + '">' + EmptyNull(obj.maCoCau) + '</td>';
+
+						tmp = tmp + '<td class="P' + EmptyNull(obj.capBac) + '">';
+						//if (obj.coLopCon == true) {
+						//    tmp = tmp + '<img class="exp" src="./images/arrow_down.png">';
+						//}
+						tmp = tmp + EmptyNull(obj.tenCoCau) + '</td>';
+
+						tmp = tmp + '<td>' + EmptyNull(obj.tenCoCauNgan) + '</td>';
+						tmp = tmp + '<td class="tr">' + EmptyNull(obj.thuTu) + '</td>';
+
+						if (obj.suDung == true)
+							tmp = tmp + '<td class="tc"><input type="checkbox" checked="checked" onclick="return false;"/></td>';
+						else tmp = tmp + '<td class="tc"><input type="checkbox" onclick="return false;"/></td>';
+
+						tmp = tmp + '<td>' + EmptyNull(obj.tenNhomCap) + '</td>';
+
+						tmp = tmp + '<td>' + EmptyNull(obj.moTa) + '</td>';
+						tmp = tmp + '</tr>';
+					}
+				}
+				$('#progress').css({ width: 100 + '%' });
+				$('#chkAll').prop('checked', false);
+				$('#gridbody').append(tmp);
+				endProgress();
+			},
+			error: function (err) {
+				if (err.responseText != "")
+					event.preventDefault();
+			}
+		});
+	}
+	$(document).ready(function () {
+		LoadData();
+	});
+	function popDongBo(title) {
+		new top.PopLayer({
+			"title": title,
+			"url": "pop-dong-bo-co-cau",
+			"width": 450,
+			"height": 220,
+			"isModal": true,
+			"moveable": false,
+			"isFullScreen": false
+		});
+	}
+	function DongBoData() {
+		$("#hidIDSelected").val('');
+		beginProgress();
+		var error = $("#error");
+		error.css("display", "none");
+		var idQuyen = $("#hidIDQuyen").val();
+		var idCocau = $("#ddlToChuc").val();
+		var idNhomCap = $("#ddlNhomCap").val();
+		var suDung = $("#hidSuDung").val();
+		var pageIndex = $("#hidPageIndex").val();
+		//null:tất cả - 1: Đang sử dung - 0:không sử dụng
+		var Params = {
+			"idNhomCap": idNhomCap,
+			"idCocau": idCocau,
+			"suDung": suDung,
+			"pageIndex": pageIndex,
+			"idQuyen": idQuyen
+		};
+		var reqdata = {
+			"UserName": "apihap@hap.vn",
+			"Password": "apihap@hap.vn"
+		};
+		$.ajax({
+			type: "GET",
+			traditional: true,
+			async: true,
+			cache: false,
+			url: '/DongBoCoCauJson',
+			context: document.body,
+			data: Params,
+			success: function (result) {
+				if (result.err.length > 0) {
+					error.text(result.err);
+					error.css("display", "inline");
+				}
+				resetTable();
+				var list = result.list;
+				var pager = result.pager;
+				//Update pager
+				var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+				var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+				var toRow = pager.pageSize * pageIndex;
+				if (toRow > pager.totalRow) toRow = pager.totalRow;
+				$("#hidtotalPage").val(totalPage);
+				$("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+				$("#currentIndex").text(pageIndex + "/" + totalPage);
+
+				var max = list.length;
+				var tmp = "";
+				for (var i = 0; i < max; i++) {
+					var obj = list[i];
+					var rowid = "r" + obj.idCoCau;
+					var bsuDung = true;
+					if (suDung == 0) { bsuDung = false; }
+					if (suDung == null || suDung == '' || obj.suDung == bsuDung) {
+						tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+						tmp = tmp + '<td class="colchk"><span class="bleft"></span><input type="checkbox" onclick="BtnFire(this)"></td>';
+						tmp = tmp + '<td class="P' + EmptyNull(obj.capBac) + '"><span class="texthide">' + EmptyNull(obj.maCoCau) + '</span></td>';
+
+						tmp = tmp + '<td class="P' + EmptyNull(obj.capBac) + '"><span class="texthide">';
+						if (obj.coLopCon == true) {
+							tmp = tmp + '<img class="exp" src="./images/arrow_down.png">';
+						}
+						tmp = tmp + EmptyNull(obj.tenCoCau) + '</span></td>';
+
+						tmp = tmp + '<td><span class="texthide">' + EmptyNull(obj.tenCoCauNgan) + '</span></td>';
+
+						if (obj.suDung == true)
+							tmp = tmp + '<td class="tc"><input type="checkbox" checked="checked" onclick="return false;"/></td>';
+						else tmp = tmp + '<td class="tc"><input type="checkbox" onclick="return false;"/></td>';
+
+						tmp = tmp + '<td><span class="texthide">' + EmptyNull(obj.tenNhomCap) + '</span></td>';
+
+						tmp = tmp + '<td>' + EmptyNull(obj.moTa) + '</td>';
+						tmp = tmp + '</tr>';
+					}
+				}
+				$('#progress').css({ width: 100 + '%' });
+				$('#chkAll').prop('checked', false);
+				$('#gridbody').append(tmp);
+				endProgress();
+			},
+			error: function (err) {
+				if (err.responseText != "")
+					event.preventDefault();
+			}
+		});
+	}
+</script>
+
+<!--JQuery Loader-->
+
+<script src="//code.jquery.com/jquery-1.11.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="jquery.tabelizer.js"></script>
+

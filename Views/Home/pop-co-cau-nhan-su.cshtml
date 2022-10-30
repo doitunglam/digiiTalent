@@ -1,0 +1,167 @@
+﻿@{
+    ViewBag.Title = "";
+    int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+    int QuyenSua = Helper.NullToZero(ViewData["QuyenSua"]);
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<div class="Content">
+    <div class="tableInput">
+        <table class="tblMaster">
+            <tr>
+                <th>Đơn vị <b class="required">※</b></th>
+                <td><select id="ddlToChuc" style="width: 489px"><option></option></select></td>
+            </tr>
+            <tr>
+                <th>Chức danh <b class="required">※</b></th>
+                <td><select id="ddlChucDanh" style="width: 489px"><option></option></select></td>
+            </tr>
+            <tr>
+                <th>Mã nhân sự <b class="required">※</b></th>
+                <td><input type="text" id="txtMaNhanSu" value="" maxlength="30" style="width:480px" /></td>
+            </tr>
+            <tr>
+                <th>Tên nhân sự <b class="required">※</b></th>
+                <td><input type="text" id="txtTenNhanSu" value="" maxlength="100" style="width:480px" /></td>
+            </tr>
+            <tr>
+                <th>Ngày hiệu lực</th>
+                <td><input type="text" id="txtNgayHieuLuc" value="" class="datepicker" maxlength="10" /></td>
+            </tr>
+            <tr>
+                <th>Ngày hết hiệu lực</th>
+                <td><input type="text" id="txtNgayHetHan" value="" class="datepicker" maxlength="10" /></td>
+            </tr>
+            <tr>
+                <th>Tên rút gọn</th>
+                <td><input type="text" id="txtTenNhanSuNgan" value="" maxlength="50" style="width:480px" /></td>
+            </tr>
+            <tr>
+                <th>Đánh giá</th>
+                <td><input type="checkbox" id="chkIsDanhGia" /><label for="chkIsDanhGia">Nhân sự được đánh giá</label></td>
+            </tr>
+            <tr>
+                <th>Trạng thái</th>
+                <td><select id="ddlTrangThai" style="width: 489px"><option></option></select></td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+        @{if (QuyenThem + QuyenSua > 0) {<span class="btn hl" onclick="SaveData(true);">Lưu</span>} }
+        <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+        <div class="clr"></div>
+    </div>
+</div>
+<div class="clr"></div>
+<script>
+    var ddlToChucData = @Html.Raw(Json.Serialize(ViewData["ddlToChuc"]));
+    $("#ddlToChuc").select2({
+        placeholder: "Chọn đơn vị",
+        data: ddlToChucData.value,
+        dropdownAutoWidth: true,
+        allowClear: true
+    });
+    var ddlChucDanhData = @Html.Raw(Json.Serialize(ViewData["ddlChucDanh"]));
+    $("#ddlChucDanh").select2({
+        placeholder: "Chọn chức danh",
+        data: ddlChucDanhData.value,
+        templateResult: formatDes,
+        allowClear: true
+    });
+
+    var ddlTrangThaiData = @Html.Raw(Json.Serialize(ViewData["ddlTrangThai"]));
+    $("#ddlTrangThai").select2({
+        placeholder: "Chọn trạng thái",
+        data: ddlTrangThaiData.value,
+        allowClear: true
+    });
+
+    function SaveData() {
+        var _IDCoCau = $("#ddlToChuc").val();
+        var _IDChucDanh = $("#ddlChucDanh").val();
+        var _MaNhanSu = $("#txtMaNhanSu").val();
+        var _HoVaTen = $("#txtTenNhanSu").val();
+        var _TenNhanSuNgan = $("#txtTenNhanSuNgan").val();
+        var _TrangThai = $("#ddlTrangThai").val();
+        var _NgayHieuLuc = vnDateToString($("#txtNgayHieuLuc").val());
+        var _NgayHetHan = vnDateToString($("#txtNgayHetHan").val());
+        var _IsDanhGia = $("#chkIsDanhGia").is(":checked");
+        
+        //Validate data
+        var iError = 0;
+        iError = iError + validateNull("txtMaNhanSu");
+        iError = iError + validateNull("txtTenNhanSu");
+        iError = iError + validateNull("ddlToChuc");
+        iError = iError + validateNull("ddlChucDanh");
+        iError = iError + validateNull("ddlTrangThai");
+        if (iError > 0) {
+            MessageLoi("Phải nhập các thông tin bắt buộc");
+            return;
+        }
+        //Insert data
+        var obj = {
+            IDNhanSu: $("#hidID").val(),
+            IDCoCau: _IDCoCau,
+            IDChucDanh: _IDChucDanh,
+            MaNhanSu: _MaNhanSu,
+            HoVaTen: _HoVaTen,
+            TenNhanSuNgan: _TenNhanSuNgan,
+            NgayHieuLuc: _NgayHieuLuc,
+            NgayHetHan: _NgayHetHan,
+            IsDanhGia: _IsDanhGia,
+            TrangThai: _TrangThai
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/LUU_CoCauNhanSuJson',
+            context: document.body,
+            data: obj,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    if ($("#hidID").val()==0)
+                        parent.ThanhCongThemMoi();
+                    else parent.ThanhCongSua();
+                    //MessageThanhCong("Lưu dữ liệu thành công");
+                    //var obj = result.obj;
+                    ////Close popup
+                }
+
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                event.preventDefault();
+            }
+        });
+    }
+</script>
+<script>
+    function LoadData() {
+        var objData = @Html.Raw(Json.Serialize(ViewData["objData"]));
+        var obj = objData.value.data;
+        $("#hidID").val(obj.idNhanSu);
+        $("#txtMaNhanSu").val(obj.maNhanSu);
+        $("#txtTenNhanSu").val(obj.hoVaTen);
+        $("#txtTenNhanSuNgan").val(obj.tenNhanSuNgan);
+        $("#txtMoTa").val(obj.moTa);
+        $("#txtNgayHieuLuc").val(obj.sNgayHieuLuc);
+        $("#txtNgayHetHan").val(obj.sNgayHetHan);
+        if (obj.isDanhGia == true)
+            $("#chkIsDanhGia").prop("checked", true);
+        $("#ddlToChuc").val(obj.idCoCau).trigger('change');
+        $("#ddlChucDanh").val(obj.idChucDanh).trigger('change');
+        $("#ddlTrangThai").val(obj.trangThai).trigger('change');
+    } 
+    LoadData();
+</script>

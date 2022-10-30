@@ -1,0 +1,43 @@
+﻿{
+  "CauHinh": {
+    "SoThucTe": "Tự đánh giá",
+    "DanhGia": "Xếp loại",
+    "TrongSo": "Mức quan trọng",
+    "MaTichHop": "Mã tích hợp CTL"
+  },
+  "TichHop": {
+    "SuDungTichHop": "1",
+    "SuDungTepDinhkem": "1",
+    "KichThuocTepDinhkem": "5242880",
+  },
+  "ChucNang": {
+    "ChucNang1": "Báo cáo",
+    "ChucNang2": "Tạo đợt phân tích",
+    "ChucNang3": "Phân tích 9 hộp",
+    "ChucNang4": "Quy ước",
+    "ChucNang5": "Mô hình 9 hộp",
+    "ChucNang10": "Cơ cấu tổ chức",
+    "ChucNang11": "Cơ cấu chức danh",
+    "ChucNang12": "Cơ cấu nhân sự",
+    "ChucNang13": "Nhóm cấp",
+    "ChucNang50": "Nhóm quyền",
+    "ChucNang51": "Phân quyền",
+    "ChucNang52": "Người dùng",
+    "ChucNang100": "Báo cáo "
+  },
+  "ChucNangEN": {
+    "ChucNang1": "Báo cáo",
+    "ChucNang2": "Tạo đợt phân tích",
+    "ChucNang3": "Phân tích 9 hộp",
+    "ChucNang4": "Quy ước",
+    "ChucNang5": "Mô hình 9 hộp",
+    "ChucNang10": "Cơ cấu tổ chức",
+    "ChucNang11": "Cơ cấu chức danh",
+    "ChucNang12": "Cơ cấu nhân sự",
+    "ChucNang13": "Nhóm cấp",
+    "ChucNang50": "Nhóm quyền",
+    "ChucNang51": "Phân quyền",
+    "ChucNang52": "Người dùng",
+    "ChucNang100": "Báo cáo "
+  }
+}

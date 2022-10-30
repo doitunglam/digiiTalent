@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = ViewData["PageTitle"];
+}
+<div id="pagetitle">
+    <h2>@ViewData["PageTitle"]</h2>
+    @*<div id="filter" class="filter">
+            <span onclick="setFilter(event,'')" class="active">Tất cả</span>
+            <span onclick="setFilter(event,1)" class="active">Đang làm việc</span>
+            <span onclick="setFilter(event,0)">Đã nghỉ việc</span>
+        </div>*@
+</div>
+<div class="pnbnt">
+    <div class="pnbtn">
+        <span class="btn"><img src="~/images/duyet.png">Duyệt</span>
+        <span class="btn"><img src="~/images/delete.png">Trả về</span>
+        <span class="btn"><img src="~/images/khoa.png">Khóa</span>
+        <span class="btn"><img src="~/images/bokhoa.png">Mở khóa</span>
+        <div class="search">
+            <span>Từ ngày</span><input type="text" value="01/04/2021" style="width:80px" /><span class="calendar"><img src="images/calendar.png" /></span>
+            <span>Đến ngày</span><input type="text" value="30/04/2021" style="width:80px" /><span class="calendar"><img src="images/calendar.png" /></span>
+        </div>
+        <span class="btn" onclick="location.reload();"><img src="~/images/nap.png" />Nạp</span>
+        <div class="pager">
+            <div class="pageinfo">1 - 20 trong 100</div>
+            <div class="fr">
+                <span>&lt;&lt;</span>
+                <span>&lt;</span>
+                <span>1/5</span>
+                <span>&gt;</span>
+                <span>&gt;&gt;</span>
+            </div>
+        </div>
+        <div class="clr"></div>
+    </div>
+</div>
+<div class="split splitfull">
+    <div class="tbl" role="region" aria-labelledby="HeadersCol" tabindex="0">
+        <table width="1800">
+            <tr class="rhead">
+                <th class="colchk"><input type="checkbox" /></th>
+                <th width="25" title="Trạng thái" class="tc">TT</th>
+                <th width="80">Mã nhân sự</th>
+                <th width="200">Họ và tên</th>
+                <th width="90">Ngày làm việc</th>
+                <th width="80">Mã đơn vị</th>
+                <th width="80">Ca đăng ký</th>
+                <th width="80">Giờ vào</th>
+                <th width="80">Giờ ra</th>
+                <th>Ghi chú</th>
+                <th width="130">Ngày sửa</th>
+                <th width="150">Người sửa</th>
+                <th width="130">Ngày duyệt</th>
+                <th width="150">Người duyệt</th>
+            </tr>
+            <tr class='unread'><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTCDUYET'></div></td><td>OOC001</td><td>Vũ Thị Thanh Hằng</td><td class='tc'>19/04/2021</td><td>BOD</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr class='unread'><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTCDUYET'></div></td><td>OOC002</td><td>Đỗ Mỹ Linh</td><td class='tc'>19/04/2021</td><td>BOD</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC003</td><td>Phan Mạnh Quỳnh</td><td class='tc'>19/04/2021</td><td>BOD</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC004</td><td>Mai Đông Nhi</td><td class='tc'>19/04/2021</td><td>MK</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC005</td><td>Nguyễn Đức Phúc</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC006</td><td>Phạm Băng Băng</td><td class='tc'>19/04/2021</td><td>RD</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC007</td><td>Khởi My</td><td class='tc'>19/04/2021</td><td>PTSP</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC008</td><td>Nguyễn Khoa Tóc Tiên</td><td class='tc'>19/04/2021</td><td>RD</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC009</td><td>Bùi Anh Tuấn</td><td class='tc'>19/04/2021</td><td>SX</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC010</td><td>Vũ Khánh Vân</td><td class='tc'>19/04/2021</td><td>NS</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC013</td><td>Trúc nhân</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC020</td><td>Lâm Tâm Như</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC022</td><td>Hà Anh Tuấn</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC021</td><td>Lương Hữu Bích</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC030</td><td>Lệ Quyên</td><td class='tc'>19/04/2021</td><td>IT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC040</td><td>Tô Chấn Phong</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC041</td><td>Triệu Lệ Dĩnh</td><td class='tc'>19/04/2021</td><td>TCKT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC101</td><td>Lưu Khải Uy</td><td class='tc'>19/04/2021</td><td>MA</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC120</td><td>Triển Chiêu</td><td class='tc'>19/04/2021</td><td>IT</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+            <tr><td class='colchk'><input type='checkbox'><span class='bleft'></span></td><td><div class='TTAD'></div></td><td>OOC123</td><td>Hồ Ngọc Hà</td><td class='tc'>19/04/2021</td><td>MK</td><td>Hành chính</td><td class='tc'>08:00:00</td><td class='tc'>17:00:00</td>		<td></td>	<td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td><td class='sys'>19/04/2021 10:23:45</td><td class='sys'>Vũ Thị Thanh Hằng</td></tr>
+
+        </table>
+    </div>
+</div>

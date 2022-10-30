@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "";
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<div class="Content">
+    <div class="tableInput">
+        <table class="tblMaster">
+            <tr>
+                <th>Mật khẩu hiện tại <b class="required">※</b></th>
+                <td><input type="password" id="txtPassHienTai" autocomplete="off" style="width:220px"></td>
+            </tr>
+            <tr>
+                <th>Mật khẩu mới <b class="required">※</b></th>
+                <td><input type="password" id="txtPassMoi" autocomplete="off" style="width:220px"></td>
+            </tr>
+            <tr>
+                <th>Nhập lại mật khẩu mới <b class="required">※</b></th>
+                <td><input type="password" id="txtPassMoiXacNhan" autocomplete="off" style="width:220px"></td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="footer">
+        <span class="btn hl" onclick="SaveData(true);">Lưu</span>
+        <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+        <div class="clr"></div>
+    </div>
+</div>
+<div class="clr"></div>
+<script>
+    function SaveData() {
+        var _passHienTai = $("#txtPassHienTai").val();
+        var _passMoi = $("#txtPassMoi").val();
+        var _passMoiXacNhan = $("#txtPassMoiXacNhan").val();
+
+        //Validate data
+        var iError = 0;
+        iError = iError + validateNull("txtPassHienTai");
+        iError = iError + validateNull("txtPassMoi");
+        iError = iError + validateNull("txtPassMoiXacNhan");
+        if (iError > 0) {
+            MessageLoi("Phải nhập các thông tin bắt buộc");
+            return;
+        }
+        if (_passMoi != _passMoiXacNhan) {
+            MessageLoi("Mật khẩu nhập lại không chính xác");
+            return;
+        }
+
+        //Insert data
+        var obj = {
+            passHienTai: _passHienTai,
+            passMoi: _passMoi
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/LUU_DoiMatKhauJson',
+            context: document.body,
+            data: obj,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    parent.ThanhCongSuaPass();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                event.preventDefault();
+            }
+        });
+    }
+</script>
+<script>
+    function LoadData() {
+        //var objData = @Html.Raw(Json.Serialize(ViewData["objData"]));
+        //var obj = objData.value.data;
+        //$("#hidID").val(obj.idNhomMucTieu);
+        //$("#txtMaNhomMucTieu").val(obj.maNhomMucTieu);
+        //$("#txtTenNhomMucTieu").val(obj.tenNhomMucTieu);
+        //$("#ddlLoaiMucTieu").val(obj.idLoaiMucTieu).trigger('change');
+    }
+    LoadData();
+</script>

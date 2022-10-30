@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "";
+    int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+    int QuyenSua = Helper.NullToZero(ViewData["QuyenSua"]);
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<div class="Content">
+    <div class="tableInput">
+        <table class="tblMaster">
+            <tr>
+                <th>Đơn vị cha <b class="required">※</b></th>
+                <td><select id="ddlToChuc" style="width: 509px"><option></option></select></td>
+            </tr>
+            <tr>
+                <th>Mã đơn vị<b class="required">※</b></th>
+                <td><input type="text" id="txtMaCoCau" value="" maxlength="50" style="width:500px" /></td>
+            </tr>
+            <tr>
+                <th>Tên đơn vị <b class="required">※</b></th>
+                <td><input type="text" id="txtTenCoCau" value="" maxlength="256" style="width:500px"/></td>
+            </tr>
+            <tr>
+                <th>Tên rút gọn</th>
+                <td><input type="text" id="txtTenCoCauNgan" value="" maxlength="50" style="width:500px"/></td>
+            </tr>
+            <tr>
+                <th>Nhóm cấp @*<b class="required">※</b>*@</th>
+                <td><select id="ddlNhomCap" style="width: 509px" data-minimum-results-for-search="Infinity"></select></td>
+            </tr>
+            <tr>
+                <th>Trạng thái</th>
+                <td>
+                    <input type="checkbox" id="chkSuDung" /><label for="chkSuDung">Sử dụng</label>
+                </td>
+            </tr>
+            <tr>
+                <th>Mô tả</th>
+                <td><input type="text" id="txtMoTa" value="" maxlength="500" style="width:500px"/></td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+        @{if (QuyenThem + QuyenSua > 0) {<span class="btn hl" onclick="SaveData(true);">Lưu</span>} }
+        <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+        <div class="clr"></div>
+    </div>
+</div>
+<div class="clr"></div>
+<script>
+    var ddlToChucData = @Html.Raw(Json.Serialize(ViewData["ddlToChuc"]));
+    $("#ddlToChuc").select2({
+        placeholder: "Chọn đơn vị cấp trên",
+        data: ddlToChucData.value,
+        dropdownAutoWidth: true,
+        allowClear: true
+    });
+    var ddlNhomCapData = @Html.Raw(Json.Serialize(ViewData["ddlNhomCap"]));
+    $("#ddlNhomCap").select2({
+        placeholder: "Chọn cấp",
+        data: ddlNhomCapData.value,
+        allowClear: false
+    });
+
+    function SaveData() {
+        var _IDCha = $("#ddlToChuc").val();
+        var _IDNhomCap = $("#ddlNhomCap").val();
+        var _MaCoCau = $("#txtMaCoCau").val();
+        var _MaTichHop = $("#txtMaTichHop").val();
+        
+        var _TenCoCau = $("#txtTenCoCau").val();
+        var _TenCoCauNgan = $("#txtTenCoCauNgan").val();
+        var _MoTa = $("#txtMoTa").val();
+        var _SuDung = $("#chkSuDung").is(":checked");
+        //Validate data
+        var iError = 0;
+        iError = iError + validateNull("txtMaCoCau");
+        iError = iError + validateNull("txtTenCoCau");
+        //iError = iError + validateNull("ddlNhomCap");
+        if (iError > 0) {
+            MessageLoi("Phải nhập các thông tin bắt buộc");
+            return;
+        }
+        //Insert data
+        var obj = {
+            IDCoCau: $("#hidID").val(),
+            IDCha: _IDCha,
+            IDNhomCap: _IDNhomCap,
+            MaCoCau: _MaCoCau,
+            MaTichHop: _MaTichHop,
+            TenCoCau: _TenCoCau,
+            TenCoCauNgan: _TenCoCauNgan,
+            MoTa: _MoTa,
+            SuDung: _SuDung
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/LUU_CoCauToChucJson',
+            context: document.body,
+            data: obj,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    if ($("#hidID").val()==0)
+                        parent.ThanhCongThemMoi();
+                    else parent.ThanhCongSua();
+                    //MessageThanhCong("Lưu dữ liệu thành công");
+                    //var obj = result.obj;
+                    ////Close popup
+                }
+                
+            },
+            error: function (err) {
+                if (err.responseText != "") 
+                event.preventDefault();
+            }
+        });
+    }
+</script>
+<script>
+    function LoadData() {
+        var objData = @Html.Raw(Json.Serialize(ViewData["objData"]));
+        var obj = objData.value.data;
+        $("#hidID").val(obj.idCoCau);
+        //$("#ddlToChuc").val(obj.idCha);
+        //$("#ddlNhomCap").val(obj.idNhomCap);
+        $("#txtMaCoCau").val(obj.maCoCau); 
+        $("#txtMaTichHop").val(obj.maTichHop);
+        $("#txtTenCoCau").val(obj.tenCoCau);
+        $("#txtTenCoCauNgan").val(obj.tenCoCauNgan);
+        $("#txtMoTa").val(obj.moTa);
+        if (obj.suDung == true)
+            $("#chkSuDung").prop("checked", true);
+
+        $("#ddlToChuc").val(obj.idCha).trigger('change');
+        $("#ddlNhomCap").val(obj.idNhomCap).trigger('change');
+    }
+    LoadData();
+</script>

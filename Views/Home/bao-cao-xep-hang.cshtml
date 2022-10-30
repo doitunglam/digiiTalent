@@ -1,0 +1,591 @@
+﻿@{
+    ViewBag.Title = ViewData["PageTitle"];
+    int QuyenXem = Helper.NullToZero(ViewData["QuyenXem"]);
+    int QuyenExport = Helper.NullToZero(ViewData["QuyenExport"]);
+    //List<ObjectDDL> listNhomMucTieu = (List<ObjectDDL>)ViewData["listNhomMucTieu"];
+}
+<style>
+    .tbl table td:first-child{padding-left:3px !important;}
+    div.splitfull {
+        height: calc(100% - 59px);
+    }
+    #gridbody th:nth-child(1),
+    #gridbody td:nth-child(1) {
+        left: -1px;
+    }
+
+    #gridbody th:nth-child(2),
+    #gridbody td:nth-child(2) {
+        left: 90px;
+    }
+
+    #gridbody th:nth-child(3),
+    #gridbody td:nth-child(3) {
+        left: 271px;
+    }
+
+    #gridbody th:nth-child(4),
+    #gridbody td:nth-child(4) {
+        left: 362px;
+    }
+
+</style>
+<div id="pagetitle">
+    <h2>@ViewData["PageTitle"]</h2>
+    <div id="chuthe" class="chuthe">
+        <span onclick="setChuThe(event,0)" class="active">Theo đơn vị</span>
+        <span onclick="setChuThe(event,1)">Theo cá nhân</span>
+    </div>
+</div>
+<input type="hidden" id="hidtotalPage" value="1" />
+<input type="hidden" id="hidPageIndex" value="1" />
+<input type="hidden" id="hidIDLoaiTanSuat" value="@ViewData["IDLoaiTanSuat"]" />
+<input type="hidden" id="hidTrangThaiDuyet" value="1" />
+<input type="hidden" id="hidChuThe" value="0" />
+<link href="~/css/circle.css" rel="stylesheet" />
+<div class="pnfilter">
+    <div class="pnbnt">
+        <div class="pnbtn">
+            <div class="search0">
+                <span><select id="ddlHeThongMucTieu" style="width:130px;"></select></span>
+                <span><select id="ddlKyDanhGia" style="width:130px"></select></span>
+                <select id="ddlNhomCap" style="width: 100px"><option></option></select>
+                <div id="divChuThe" class="fl">
+                    <select id="ddlChuThe" style="width: 200px"><option></option></select>
+                </div>
+                <div id="divNguoiPhuTrach" class="fl" style="display:none;">
+                    <span>
+                        <select id="ddlToChuc" style="width:200px"><option></option></select>
+                        <select id="ddlNguoiPhuTrach" style="width:150px"><option></option></select>
+                    </span>
+                </div>
+                @*<select id="ddlLoaiMucTieu" style="min-width:180px"></select>*@
+                <span class="btn btnNap" onclick="NapData();" style="margin-top:1px;"><img src="~/images/nap.png" />Nạp</span>
+                <script>
+                var ddlHeThongMucTieuData = @Html.Raw(Json.Serialize(ViewData["ddlHeThongMucTieu"]));
+                $("#ddlHeThongMucTieu").select2({
+                    placeholder: "Hệ thống mục tiêu",
+                    data: ddlHeThongMucTieuData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: false
+                }).on('select2:select', function (e) {
+                    BindKyDanhGia();
+                });
+                var ddlKyDanhGiaData = @Html.Raw(Json.Serialize(ViewData["ddlKyDanhGia"]));
+                $("#ddlKyDanhGia").select2({
+                    placeholder: "Kỳ đánh giá",
+                    data: ddlKyDanhGiaData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: false
+                }).on('select2:select', function (e) {
+                    var data = e.params.data;
+                    var idParent = data.idParent;
+                    $("#hidIDLoaiTanSuat").val(idParent);
+                });
+                var ddlNhomCapData = @Html.Raw(Json.Serialize(ViewData["ddlNhomCap"]));
+                $("#ddlNhomCap").select2({
+                    placeholder: "Cấp",
+                    data: ddlNhomCapData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    BindToChuc();
+                });
+                @*var ddlLoaiMucTieuData = @Html.Raw(Json.Serialize(ViewData["ddlLoaiMucTieu"]));
+                $("#ddlLoaiMucTieu").select2({
+                    placeholder: "Xếp hạng",
+                    data: ddlLoaiMucTieuData.value,
+                    allowClear: false
+                });*@
+                var ddlChuTheData = @Html.Raw(Json.Serialize(ViewData["ddlChuThe"]));
+                $("#ddlChuThe").select2({
+                    placeholder: "Chủ thể chỉ tiêu",
+                    data: ddlChuTheData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                });
+                var ddlToChucData = @Html.Raw(Json.Serialize(ViewData["ddlToChuc"]));
+                $("#ddlToChuc").select2({
+                    placeholder: "Đơn vị",
+                    data: ddlToChucData.value,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    clearError("ddlNguoiPhuTrach");
+                    BindNguoiPhuTrach();
+                });
+                $("#ddlNguoiPhuTrach").select2({
+                    ajax: {
+                        url: '/nhan_su_search_JsonDDL',
+                        data: function (params) {
+                            var query = {
+                                //listID: $("#ddlToChuc").val(),
+                                keyword: params.term,
+                                idQuyen: $("#hidIDQuyen").val()
+                            }
+                            return query;
+                        },
+                        dataType: 'json',
+                        processResults: function (data) {
+                            return {
+                                results: data
+                            };
+                        }
+                    },
+                    placeholder: "Người phụ trách",
+                    templateResult: formatNhanSu,
+                    dropdownAutoWidth: true,
+                    allowClear: true
+                }).on('select2:select', function (e) {
+                    clearError("ddlNguoiPhuTrach");
+                });
+                </script>
+                <div class="clr"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function BindToChuc() {
+            $("#ddlChuThe").html("");
+            $("#ddlChuThe").select2({
+                ajax: {
+                    url: '/chu_the_chi_tieu_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idNhomCap: $("#ddlNhomCap").val(),
+                            idQuyen: $("#hidIDQuyen").val(),
+                            iType: -3
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Chủ thể chỉ tiêu",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+            $("#ddlToChuc").html("");
+            $("#ddlToChuc").select2({
+                ajax: {
+                    url: '/co_cau_to_chuc_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            idNhomCap: $("#ddlNhomCap").val(),
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Đơn vị",
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+        }
+        function BindNguoiPhuTrach() {
+            $("#ddlNguoiPhuTrach").html("");
+            $("#ddlNguoiPhuTrach").select2({
+                ajax: {
+                    url: '/nhan_su_search_JsonDDL',
+                    data: function (params) {
+                        var query = {
+                            //listID: $("#ddlToChuc").val(),
+                            keyword: params.term,
+                            idQuyen: $("#hidIDQuyen").val()
+                        }
+                        return query;
+                    },
+                    dataType: 'json',
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    }
+                },
+                placeholder: "Người phụ trách",
+                templateResult: formatNhanSu,
+                dropdownAutoWidth: true,
+                allowClear: true
+            });
+        }
+    </script>
+    <div class="pnbnt">
+        <div class="pnbtn">
+            @{if (QuyenExport > 0)
+                {<span class="btn" onclick="ExportData()"><img src="./images/doc_export.png">Xuất Excel</span>} }
+        </div>
+        <div class="pager">
+            <div id="pageinfo" class="pageinfo">&nbsp;</div>
+            <div class="fr">
+                <span id="gofirst" onclick="goToPage(event)">&lt;&lt;</span>
+                <span id="goprev" onclick="goToPage(event)">&lt;</span>
+                <span id="currentIndex"></span>
+                <span id="gonext" onclick="goToPage(event)">&gt;</span>
+                <span id="golast" onclick="goToPage(event)">&gt;&gt;</span>
+            </div>
+        </div>
+        <div class="clr"></div>
+    </div>
+</div>
+    <div class="split splitfull">
+        <div class="tbl" role="region" aria-labelledby="HeadersCol" tabindex="0">
+            <table width="100%" id="gridbody" class="hidelast" style="margin-top:-2px;">
+                <thead class="rhead merge">
+                    <tr style="height:1px;" class="thHide">
+                        <th width="80"></th>
+                        <th width="170"></th>
+                        <th width="80"></th>
+                        <th width="170"></th>
+                        <th width="80"></th>
+                        <th width="170"></th>
+                        <th width="50"></th>
+                        <th width="50"></th>
+                        <th width="50"></th>
+                        <th width="50"></th>
+                        <th width="50"></th>
+                        <th width="50"></th>
+                        <th width="300"></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="freezy" rowspan="2">Mã đơn vị<span class="bdr"></span><span class="bdb"></span></th>
+                        <th class="freezy" rowspan="2">Tên đơn vị<span class="bdr"></span><span class="bdb"></span></th>
+                        <th class="freezy" rowspan="2"><div class="colgroup1" name="ctCongTy">Mã trưởng đơn vị</div><div class="colspan2" name="ctCaNhan" style="display:none">Mã nhân sự</div><span class="bdr"></span><span class="bdb"></span><span class="bdb"></span></th>
+                        <th class="freezy" rowspan="2"><div class="colgroup1" name="ctCongTy">Tên trưởng đơn vị</div><div class="colspan2" name="ctCaNhan" style="display:none">Tên nhân sự</div><span class="bdr"></span><span class="bdb"></span><span class="bdb"></span></th>
+                        <th rowspan="2">Mã chức danh<span class="bdb"></span></th>
+                        <th rowspan="2">Tên chức danh<span class="bdb"></span></th>
+                        <th rowspan="2" width="50" class="active1">Tổng điểm (1)<span class="bdb"></span></th>
+                        <th rowspan="2" width="50" class="active1">Điểm + -<span class="bdb"></span></th>
+                        <th rowspan="2" width="50" class="active">Tổng điểm (2)<span class="bdb"></span></th>
+                        <th rowspan="2" width="50" class="active">@ViewData["DanhGia"]<span class="bdb"></span></th>
+                        <th colspan="3" width="50" class="active2">Hội đồng đánh giá<span class="bdb"></span></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="active2">Điểm %<span class="bdb"></span></th>
+                        <th class="active2">Xếp loại<span class="bdb"></span></th>
+                        <th class="active2">Nhận xét<span class="bdb"></span></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <script>
+    function goToPage(e) {
+        var pageIndex = parseInt($("#hidPageIndex").val());
+        var totalRow = parseInt($("#hidtotalPage").val());
+        switch (e.currentTarget.id) {
+            case 'gofirst':
+                $("#hidPageIndex").val(1);
+                break;
+            case 'goprev':
+                if (pageIndex > 1) pageIndex = pageIndex - 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'gonext':
+                if (pageIndex < totalRow) pageIndex = pageIndex + 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'golast':
+                $("#hidPageIndex").val(totalRow);
+                break;
+        }
+        LoadData();
+    }
+    function setChuThe(e, chuThe) {
+        //var listNhom = @Html.Raw(Json.Serialize(ViewData["listNhomMucTieu"]));
+        $("#hidChuThe").val(chuThe);
+        $("#hidPageIndex").val(1);
+
+        if (chuThe == 0) {
+            document.getElementById("divChuThe").style.display = "";
+            document.getElementById("divNguoiPhuTrach").style.display = "none";
+        }
+        else {
+            document.getElementById("divChuThe").style.display = "none";
+            document.getElementById("divNguoiPhuTrach").style.display = "";
+        }
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("chuthe").getElementsByTagName("span");
+        for (i = 0; i < tabFilter.length; i++) {
+            tabFilter[i].className = "";
+        }
+        //Tao bảng dữ liệu
+        var tmp = "";
+        tmp = tmp + '<th class="colchk"><input type="checkbox" id="chkAll" onclick="setCheckAll(this);" /></th>';
+
+        ctCongTy = document.getElementsByName("ctCongTy")
+        ctCaNhan = document.getElementsByName("ctCaNhan")
+        if (chuThe == 0) {
+            clearError("ddlNguoiPhuTrach");
+            for (i = 0; i < ctCongTy.length; i++) {
+                ctCongTy[i].style.display = "";
+            }
+            for (i = 0; i < ctCaNhan.length; i++) {
+                ctCaNhan[i].style.display = "none";
+            }
+        }
+        else {
+            clearError("ddlChuThe");
+            for (i = 0; i < ctCongTy.length; i++) {
+                ctCongTy[i].style.display = "none";
+            }
+            for (i = 0; i < ctCaNhan.length; i++) {
+                ctCaNhan[i].style.display = "";
+            }
+        }
+        e.currentTarget.className = "active";
+        LoadData();
+    }
+    function setFilter(e, suDung) {
+        $("#hidTrangThaiDuyet").val(suDung);
+        $("#hidPageIndex").val(1);
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("filter").getElementsByTagName("span");
+        for (i = 0; i < tabFilter.length; i++) {
+            tabFilter[i].className = "";
+        }
+        e.currentTarget.className = "active";
+        LoadData();
+    }
+    function NapData() {
+        $("#hidPageIndex").val(1);
+        LoadData();
+    }
+    function LoadData() {
+        $("#hidIDSelected").val('');
+        clearError("ddlTanSuat");
+        clearError("ddlChuThe");
+        clearError("ddlNguoiPhuTrach");
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var idQuyen = $("#hidIDQuyen").val();
+        var idCoCau = $("#ddlChuThe").val();
+        var idCoCauPhuTrach = $("#ddlToChuc").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var chuThe = $("#hidChuThe").val();
+        var pageIndex = $("#hidPageIndex").val();
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idLoaiTanSuat = $("#hidIDLoaiTanSuat").val();
+        var idHTTS = $("#ddlKyDanhGia").val();
+        var idNguoiPhuTrach = $("#ddlNguoiPhuTrach").val();
+        var keyword = $("#txtKeyword").val();
+        var idXepHang = $("#ddlLoaiMucTieu").val();
+
+        //Validate data
+        if (chuThe == 0) {
+            idNguoiPhuTrach = null;
+        }
+        else {
+            idCoCau = null;
+            ////Validate data
+            //if (EmptyNull(idNguoiPhuTrach) == "" && EmptyNull(idCoCauPhuTrach) == "") {
+            //    setError("ddlNguoiPhuTrach");
+            //    $('#progress').css({ width: 100 + '%' });
+            //    endProgress();
+            //    MessageLoi("Phải chọn các thông tin bắt buộc");
+            //    return;
+            //}
+        }
+
+        var Params = {
+            "idHTMT": idHTMT,
+            "idNhomCap": idNhomCap,
+            "idLoaiTanSuat": idLoaiTanSuat,
+            "idHTTS": idHTTS,
+            "chuThe": chuThe,
+            "idCoCau": idCoCau,
+            "idCoCauPhuTrach": idCoCauPhuTrach,
+            "idNguoiPhuTrach": idNguoiPhuTrach,
+            "idXepHang": idXepHang,
+            "keyword": keyword,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/bao_cao_xep_hang_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                resetTable(3);
+                $("#danhgia").html(result.obj);
+                var list = result.list;
+                //var listNhom = result.listNhomMucTieu;
+                var pager = result.pager;
+                //Update pager
+                var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+                var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+                var toRow = pager.pageSize * pageIndex;
+                if (toRow > pager.totalRow) toRow = pager.totalRow;
+                $("#hidtotalPage").val(totalPage);
+                $("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+                $("#currentIndex").text(pageIndex + "/" + totalPage);
+
+                //var MaxColDiem = listNhom.length;
+
+                var max = list.length;
+                var tmp = "";
+                var tmpEdit = "";
+                var img = "";
+                ////reset header
+                //for (var iNhom = 0; iNhom < 10; iNhom++) {
+                //    if (iNhom < MaxColDiem) {
+                //        $('[name="colNhom' + iNhom + '"]').css("display", "");
+                //        $('#colNhom' + iNhom).html('' + listNhom[iNhom].text + '<span class="bdb"></span>');
+                //    }
+                //    else {
+                //        $('[name="colNhom' + iNhom + '"]').css("display", "none");
+                //    }
+                //}
+
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idDanhGia;
+
+                    tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+                    if (EmptyNull(obj.anhNhanSu) != "") img = '<img src="' + EmptyNull(obj.anhNhanSu) + '" class="user">'; else img = "";
+                    tmp = tmp + '<td class="freezy break">' + EmptyNull(obj.maCoCau) + '<span class="bdr"></span><span class="bdb"></span></td>';
+                    tmp = tmp + '<td class="freezy" title="' + EmptyNull(obj.tenCoCau) + '" class="P' + EmptyNull(obj.capBac) + '"><span>' + EmptyNull(obj.tenCoCau) + '</span><span class="bdr"></span><span class="bdb"></span></td>';
+                    tmp = tmp + '<td class="freezy break"><span>' + EmptyNull(obj.maNhanSu) + '</span><span class="bdr"></span><span class="bdb"></span></td>';
+                    tmp = tmp + '<td class="freezy" title="' + EmptyNull(obj.hoVaTen) + '"><span>' + img + '<span class="uname">' + EmptyNull(obj.hoVaTen) + '</span></span><span class="bdr"></span><span class="bdb"></span></td>';
+                    tmp = tmp + '<td class="break"><span>' + EmptyNull(obj.maChucDanh) + '</span></td>';
+                    tmp = tmp + '<td title="' + EmptyNull(obj.tenChucDanh) + '"><span>' + EmptyNull(obj.tenChucDanh) + '</span></td>';
+                    tmp = tmp + '<td class="tr">' + BindDecimal2(obj.diem) + '</td>';
+                    tmp = tmp + '<td class="tr">' + BindDecimal2(obj.diemCongTru) + '</td>';
+                    tmp = tmp + '<td class="tr">' + BindDecimal2(obj.tongDiem) + '</td>';
+                    if (EmptyNull(obj.mucDanhGia)!="")
+                        tmp = tmp + '<td class="tc" style="color:' + obj.mauSac1 + '">' + EmptyNull(obj.mucDanhGia) + '</td>';
+                    else tmp = tmp + '<td class="tc">' + EmptyNull(obj.mucDanhGia) + '</td>';
+                    tmp = tmp + '<td class="tr">' + BindDecimal2(obj.diemDuyet) + '</td>';
+                    if (EmptyNull(obj.mucDuyet) != "")
+                        tmp = tmp + '<td class="tc" style="color:' + obj.mauSac2 + '">' + EmptyNull(obj.mucDuyet) + '</td>';
+                    else tmp = tmp + '<td class="tc">' + EmptyNull(obj.mucDuyet) + '</td>';
+                    tmp = tmp + '<td>' + EmptyNull(obj.nhanXet) + '</td>';
+                    tmp = tmp + '<td></td>';
+                    tmp = tmp + '</tr>';
+                }
+                $('#progress').css({ width: 100 + '%' });
+                $('#chkAll').prop('checked', false);
+                $('#gridbody').append(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+
+    function popDanhGia(title) {
+        var chuThe = $("#hidChuThe").val();
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-danh-gia/" + chuThe,
+            "width": 650,
+            "height": 420,
+            "isModal": true,
+            "moveable": false,
+            "isFullScreen": false
+        });
+    }
+    function ExportData() {
+        $("#hidIDSelected").val('');
+        clearError("ddlTanSuat");
+        clearError("ddlChuThe");
+        clearError("ddlNguoiPhuTrach");
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var idQuyen = $("#hidIDQuyen").val();
+        var idCoCau = $("#ddlChuThe").val();
+        var idCoCauPhuTrach = $("#ddlToChuc").val();
+        var idNhomCap = $("#ddlNhomCap").val();
+        var chuThe = $("#hidChuThe").val();
+        var pageIndex = $("#hidPageIndex").val();
+        var idHTMT = $("#ddlHeThongMucTieu").val();
+        var idLoaiTanSuat = $("#hidIDLoaiTanSuat").val();
+        var idHTTS = $("#ddlKyDanhGia").val();
+        var idNguoiPhuTrach = $("#ddlNguoiPhuTrach").val();
+        var keyword = $("#txtKeyword").val();
+        var idXepHang = $("#ddlLoaiMucTieu").val();
+
+        var maHTMT = $("#ddlHeThongMucTieu").select2('data')[0].text;
+        var kyDanhGia = $("#ddlKyDanhGia").select2('data')[0].text;
+
+        //Validate data
+        if (chuThe == 0) {
+            idNguoiPhuTrach = null;
+        }
+        else {
+            idCoCau = null;
+        }
+
+        var Params = {
+            "idHTMT": idHTMT,
+            "idNhomCap": idNhomCap,
+            "idLoaiTanSuat": idLoaiTanSuat,
+            "idHTTS": idHTTS,
+            "chuThe": chuThe,
+            "maHTMT": maHTMT,
+            "kyDanhGia": kyDanhGia,
+            "idCoCau": idCoCau,
+            "idCoCauPhuTrach": idCoCauPhuTrach,
+            "idNguoiPhuTrach": idNguoiPhuTrach,
+            "idXepHang": idXepHang,
+            "keyword": keyword,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/export_bao_cao_xep_hang_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                var path = result.path;
+                if (path.length > 0) {
+                    window.location.href = "@Url.RouteUrl(new { Controller = "Home", Action = "DownloadFile" })/?file=" + path;
+                }
+                $('#progress').css({ width: 100 + '%' });
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadData();
+    });
+    BindTableExcelEvent();
+    </script>

@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = ViewData["PageTitle"];
+    int QuyenThem = Helper.NullToZero(ViewData["QuyenThem"]);
+    int QuyenXoa = Helper.NullToZero(ViewData["QuyenXoa"]);
+}
+<div id="pagetitle">
+    <h2>@ViewData["PageTitle"]</h2>
+    <div id="filter" class="filter">
+        <span onclick="setFilter(event,'')" class="active">Tất cả</span>
+        <span onclick="setFilter(event,1)">Đang sử dụng</span>
+        <span onclick="setFilter(event,0)">Không sử dụng</span>
+    </div>
+</div>
+<input type="hidden" id="hidtotalPage" value="1" />
+<input type="hidden" id="hidPageIndex" value="1" />
+<input type="hidden" id="hidSuDung" value="" />
+<div class="pnfilter">
+    <div class="pnbnt">
+        @{if (QuyenThem > 0)
+            {<span class="btn" onclick="openPopup('Thêm mới nhóm cấp')"><img src="~/images/round_plus.png">Thêm</span>} }
+        @{if (QuyenThem > 0)
+            {<span class="btnhide" id="btnSua" onclick="openPopupSua('Sửa nhóm cấp')"><img src="~/images/pencil.png">Sửa</span>} }
+        @{if (QuyenXoa > 0)
+            {<span class="btnhide" id="btnXoa" onclick="XoaData()"><img src="~/images/delete.png">Xóa</span>} }
+        <div class="pnbtn">
+            <span class="btn btnNap" onclick="NapData();"><img src="~/images/nap.png" />Nạp</span>
+            <div class="pager">
+                <div id="pageinfo" class="pageinfo">&nbsp;</div>
+                <div class="fr">
+                    <span id="gofirst" onclick="goToPage(event)">&lt;&lt;</span>
+                    <span id="goprev" onclick="goToPage(event)">&lt;</span>
+                    <span id="currentIndex"></span>
+                    <span id="gonext" onclick="goToPage(event)">&gt;</span>
+                    <span id="golast" onclick="goToPage(event)">&gt;&gt;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="split splitfull">
+    <div class="tbl" role="region" aria-labelledby="HeadersCol" tabindex="0">
+        <table width="100%" id="gridbody">
+            <tr class="rhead">
+                <th class="colchk"><input type="checkbox" id="chkAll" onclick="setCheckAll(this);" /><span class="bdb"></span></th>
+                <th width="70">Mã nhóm<span class="bdb"></span></th>
+                <th width="200">Tên nhóm cấp<span class="bdb"></span></th>
+                <th width="70">Thứ tự<span class="bdb"></span></th>
+                <th width="80">Sử dụng<span class="bdb"></span></th>
+                <th><span class="bdb"></span></th>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+    function openPopupSua(title) {
+        var id = $("#hidIDSelected").val();
+        if (id == 0 || id == null) { return; }
+        if (id.length > 0) id = id.substr(1);
+        openPopup(title, id);
+    }
+    function openPopup(title, id) {
+        id = EmptyNull(id);
+        new top.PopLayer({
+            "title": title,
+            "url": "pop-co-cau-nhom-cap/" + id,
+            "width": 445,
+            "height": 280,
+            "isModal": true,
+            "moveable": false,
+            "isFullScreen": false
+        });
+    }
+    function XoaData() {
+        var chks = $('#gridbody td.colchk input[type="checkbox"]:checked');
+        var max = chks.length;
+        if (max < 1) { return; }
+        if (!confirmDeleteVN()) { return; }
+        var idQuyen = $("#hidIDQuyen").val();
+        var tmp = "";
+        for (var i = 0; i < max; i++) {
+            var row = chks[i].parentNode.parentNode;
+            var id = row.id;
+            var idMucTieu = id.substr(1);
+            tmp = tmp + idMucTieu + ";";
+        }
+        var Params = {
+            "tmp": tmp,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "POST",
+            traditional: true,
+            //async: false,
+            cache: false,
+            url: '/XOA_CoCauNhomCapJson',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    MessageThanhCong("Xóa dữ liệu thành công");
+                    LoadData();
+                }
+            },
+            error: function (err) {
+                if (err.responseText != "")
+                    event.preventDefault();
+            }
+        });
+    }
+    function ThanhCongThemMoi() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Thêm mới thành công");
+        LoadData();
+    }
+    function ThanhCongSua() {
+        document.getElementById('myPop-close').click();
+        MessageThanhCong("Lưu dữ liệu thành công");
+        LoadData();
+    }
+</script>
+<script>
+    function goToPage(e) {
+        var pageIndex = parseInt($("#hidPageIndex").val());
+        var totalRow = parseInt($("#hidtotalPage").val());
+        switch (e.currentTarget.id) {
+            case 'gofirst':
+                $("#hidPageIndex").val(1);
+                break;
+            case 'goprev':
+                if (pageIndex > 1) pageIndex = pageIndex - 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'gonext':
+                if (pageIndex < totalRow) pageIndex = pageIndex + 1;
+                $("#hidPageIndex").val(pageIndex);
+                break;
+            case 'golast':
+                $("#hidPageIndex").val(totalRow);
+                break;
+        }
+        LoadData();
+    }
+    function setFilter(e, suDung) {
+        $("#hidSuDung").val(suDung);
+        $("#hidPageIndex").val(1);
+
+        var i, tabFilter;
+        tabFilter = document.getElementById("filter").getElementsByTagName("span");
+        for (i = 0; i < tabFilter.length; i++) {
+            tabFilter[i].className = "";
+        }
+        e.currentTarget.className = "active";
+        LoadData();
+    }
+    function NapData() {
+        $("#hidPageIndex").val(1);
+        LoadData();
+    }
+    function LoadData() { $("#hidIDSelected").val('');
+        beginProgress();
+        var error = $("#error");
+        error.css("display", "none");
+        var idQuyen = $("#hidIDQuyen").val();
+        var suDung = $("#hidSuDung").val();
+        var pageIndex = $("#hidPageIndex").val();
+        //null:tất cả - 1: Đang sử dung - 0:không sử dụng
+        var Params = {
+            "suDung": suDung,
+            "pageIndex": pageIndex,
+            "idQuyen": idQuyen
+        };
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: '/co_cau_nhom_cap_json',
+            context: document.body,
+            data: Params,
+            success: function (result) {
+                if (result.err.length > 0) {
+                    error.text(result.err);
+                    error.css("display", "inline");
+                }
+                resetTable();
+                var list = result.list;
+                var pager = result.pager;
+                //Update pager
+                var totalPage = Math.ceil(pager.totalRow / pager.pageSize);
+                var fromRow = (pager.pageSize * (pageIndex - 1) + 1);
+                var toRow = pager.pageSize * pageIndex;
+                if (toRow > pager.totalRow) toRow = pager.totalRow;
+                $("#hidtotalPage").val(totalPage);
+                $("#pageinfo").text(fromRow + " - " + toRow + " trong " + pager.totalRow);
+                $("#currentIndex").text(pageIndex + "/" + totalPage);
+
+                var max = list.length;
+                var tmp = "";
+                for (var i = 0; i < max; i++) {
+                    var obj = list[i];
+                    var rowid = "r" + obj.idNhomCap;
+                    var bsuDung = true;
+                    if (suDung == 0) { bsuDung = false; }
+                    if (suDung == null || suDung == '' || obj.suDung == bsuDung) {
+                        tmp = tmp + '<tr id="' + rowid + '" onclick="setSelect(this);">';
+                        tmp = tmp + '<td class="colchk"><span class="bleft"></span><input type="checkbox" onclick="BtnFire(this)"></td>';
+                        tmp = tmp + '<td>' + obj.maNhomCap + '</td>';
+                        if (obj.tenNhomCap == null) obj.tenNhomCap = '';
+                        tmp = tmp + '<td><span class="texthide">' + obj.tenNhomCap + '</span></td>';
+                        tmp = tmp + '<td class="tc">' + obj.thuTu + '</td>';
+                        if (obj.suDung == true)
+                            tmp = tmp + '<td class="tc"><input type="checkbox" checked="checked" onclick="return false;"/></td>';
+                        else tmp = tmp + '<td class="tc"><input type="checkbox" onclick="return false;"/></td>';
+                        tmp = tmp + '<td></td></tr>';
+                    }
+                }
+                $('#progress').css({ width: 100 + '%' });
+                $('#chkAll').prop('checked', false);
+                $('#gridbody').append(tmp);
+                endProgress();
+            },
+            error: function (err) {
+                if (err.responseText != "") 
+                event.preventDefault();
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadData();
+    });
+</script>

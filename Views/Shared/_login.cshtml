@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/digii.js"></script>
+    <script src="~/Scripts/Notify.js"></script>
+    <link href="~/Scripts/font-awesome.min.css" rel="stylesheet" />
+</head>
+<body>
+    <style>
+        .login {
+            height: 30px;
+        }
+
+        .dang_nhap {
+            font-size: 20px;
+            font-weight: 700;
+            color: #464e61;
+            margin-right: 38px;
+            cursor: pointer;
+        }
+
+        .dang_ky {
+            font-size: 20px;
+            font-weight: 700;
+            color: #dbdee7;
+            cursor: pointer;
+        }
+
+            .dang_ky:hover {
+                color: #464e61;
+            }
+
+        .line_login {
+            width: 324px;
+            height: 3px;
+            margin: 15px auto 30px;
+            background-image: linear-gradient( 90deg,#edeff3,#edeff3 53px,#36c8cf 0,#36c8cf 156px,#edeff3 0,#edeff3 168px);
+        }
+
+        .hpanel {
+            margin-left: auto;
+            margin-right: auto;
+            width: 324px;
+            height: 180px;
+        }
+
+        .panel_body {
+            height: 100%;
+        }
+
+        .submit {
+            margin-top: 20px;
+            height: 48px;
+            text-transform: uppercase;
+            background-color: #36c8cf;
+            border-radius: 3px;
+            box-shadow: 0 4px 10px 0 rgb(54 200 207 / 20%);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            width: 100%;
+        }
+
+        .article {
+            position: absolute;
+            top: calc(45% - 60px);
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 100%;
+            height: 450px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .left_half {
+            position: absolute;
+            left: 0;
+            width: calc(100vw - 606px);
+            height:100%;
+        }
+        .caption {
+            position: absolute;
+            right: 15%;
+            z-index: 10;
+            padding-top: 20px;
+            padding-bottom: 10px;
+            color: #fff;
+            left: 10%;
+            text-align: start;
+            bottom: 17.2%;
+            width: 80%;
+        }
+        .right_half {
+            position: absolute;
+            right: 0;
+            width: 606px;
+            height: 100%;
+            background: #fff;
+        }
+
+        .relative {
+            position: relative;
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .username, .password {
+            padding-left: 48px;
+            padding-right: 48px;
+            height: 48px;
+            width: calc(100% - 96px);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+
+        .password {
+        }
+
+            .username:focus, .password:focus, .submit:focus {
+                outline: none;
+                border-color: #444;
+            }
+
+        .submit:hover {
+            cursor: pointer;
+        }
+
+        .footer_page {
+            height: 46px;
+            position: fixed;
+            bottom: 0;
+            width: 606px;
+            line-height: 46px;
+            border: 1px solid #dbdee7;
+            text-align: center;
+        }
+
+        .footer_page .text_footer {
+            color: #bdc2d2;
+            font-size: 15px;
+            z-index: 9999;
+        }
+
+            .footer_page .text_footer a {
+                color: #bdc2d2;
+                font-size: 15px;
+                z-index: 9999;
+                text-decoration: none;
+                }
+
+        .imgICO {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 22px;
+            opacity: 0.5;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+    <div id="progress"></div>
+    <div class="left_half">
+        <img style="width:100%;height:100%;" src="~/images/bg_slide_01.png">
+        <div class="caption">
+            <div style="font-size: 45px;line-height:65px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">Redefine Management</div>
+            <div style="padding-top:10px;">Xây dựng hệ thống năng động &amp; hiệu quả</div>
+        </div>
+    </div>
+    <form action="~/login" autocomplete="off">
+        <div class="right_half">
+            <div class="article">
+                <img width="150" src="~/images/login.png" alt="ooc" style="margin-block:60px">
+                <div class="login"><span class="dang_nhap">Đăng nhập</span><a href="https://ooc.vn/phan-mem-ooc/" class="dang_ky">Đăng ký</a></div>
+                <div class="line_login"></div>
+                <div class="hpanel">
+                    <div class="panel-body">
+                        <div class="relative">
+                            <img src="~/images/mail_2.png" class="imgICO" />
+                            <input type="text" name="username" class="username" title="Nhập tài khoản" placeholder="Tài khoản" value="@TempData["username"]" autocomplete="off">
+                        </div>
+                        <div class="relative">
+                            <img src="~/images/khoa.png" class="imgICO" />
+                            <input type="password" name="password" class="password" title="Nhập mật khẩu" placeholder="Mật khẩu" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="error">@TempData["Error"]</div>
+                    <button type="submit" class="submit">Đăng nhập</button>
+                </div>
+            </div>
+            <div class="footer_page"><div class="text_footer text-center"><a href="https://ooc.vn/">Cung cấp bởi OOC digiiMS.</a></div></div>
+            @RenderBody()
+        </div>
+    </form>
+    <div id="error"></div>
+    <div id="notifications"></div>
+    <script>
+        $(document).ready(function () {
+            $('input').attr('autocomplete', 'off');
+        });
+    </script>
+</body>
+</html>

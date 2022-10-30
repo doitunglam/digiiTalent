@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "";
+    var user = (DefaultUser)ViewData["dUser"];
+    int QuyenImport = Helper.NullToZero(ViewData["QuyenImport"]);
+}
+<style>
+    .lblCongThuc{float:left;background:#ddd;width:38px !important;text-align:center;line-height:23px;font-weight:bold;border:solid 1px #ccc;margin-right:-1px;}
+    .fixTable{height:204px;margin-top:-1px;}
+    .txtTienDo{float:left;width:40px !important;text-align:center;border-radius:5px 0 0 5px !important;margin-right:-1px !important;}
+    .txtCongThuc{float:left;width:calc(100% - 48px) !important;border-radius:0 5px 5px 0 !important;}
+    .ddlTrangThai{float:left;width:calc(100% - 40px) !important;border-radius:0 5px 5px 0 !important;}
+    .tableFunction{position:absolute;left:648px;}
+</style>
+<form id="formWithFiles" enctype="multipart/form-data">
+    <div class="Content">
+        <div style="width:1px;height:1px;position:absolute;bottom:-10px;overflow:hidden;">
+            <input type="text" id="Username" style="" />
+            <input type="password" id="Password" style="" />
+        </div>
+        <div class="tableInput">
+            <table class="tblMaster" style="width: 415px;">
+                <tr>
+                    <td>
+                        <div id="fileName" style="border:solid 1px #ccc;padding:10px;height:75px;line-height:1.5;word-break:break-all"><b>Tên tệp: </b><br /><b>Kích thước: </b></div>
+                    </td>
+                </tr>
+                @*<tr>
+                    <td><input type="checkbox" id="chkOverwrite" /><label for="chkOverwrite">Ghi đè dữ liệu</label></td>
+                </tr>*@
+            </table>
+        </div>
+        <div class="footer">
+            <input type="file" id="fileUpload" hidden="hidden"/>
+            @{if (QuyenImport > 0) { <label for="fileUpload" class="btn hl">Chọn tệp</label>} }
+            @{if (QuyenImport > 0) { <span class="btn hl" onclick="SaveData();">Import tệp</span>} }
+            <span class="btn" onclick="parent.document.getElementById('myPop-close').click();">Đóng</span>
+            <div class="clr"></div>
+        </div>
+        <div class="slider" id="slider" style="display:none;">
+            <div class="line"></div>
+            <div class="subline inc"></div>
+            <div class="subline dec"></div>
+        </div>
+    </div>
+</form>
+    <div class="clr"></div>
+    <script>
+        $("#fileUpload").change(function () {
+            var file = this.files[0];
+            var tmp = "<b>Tên têp:</b> " + file.name + "<br/><b>Kích thước:</b> " + Math.round(file.size / 1024, 2) + "KB";
+            $('#fileName').html(tmp);
+        });
+
+        function SaveData() {
+            var files = $('#fileUpload')[0].files;
+            if (files.length == 0) { MessageLoi("Không có file"); return; }
+            if (files[0] == undefined) { MessageLoi("Không có file"); return; }
+            if (files[0] == null) { MessageLoi("Không có file"); return; }
+
+            document.getElementById("slider").style.display = "block";
+            var formData = new FormData();
+            formData.append('file', $('#fileUpload')[0].files[0]);
+
+            $.ajax({
+                url: '/import_co_cau_chuc_danh_upload_json',
+                type: 'POST',
+                data: formData, // The form with the file inputs.
+                processData: false,
+                contentType: false                    // Using FormData, no need to process data.
+            }).done(function (result) {
+                document.getElementById("slider").style.display = "none";
+                if (result.err.length > 0) {
+                    MessageLoi(result.err);
+                }
+                else {
+                    var path = result.path;
+                    if (path.length > 0) {
+                        window.location.href = "@Url.RouteUrl(new { Controller = "Home", Action = "DownloadFile" })/?file=" + path;
+                    }
+                    else parent.ThanhCongImport();
+                }
+            }).fail(function (err) {
+                document.getElementById("slider").style.display = "none";
+                MessageLoi("An error occurred, the files couldn't be sent!");
+            });
+        }
+    </script>
